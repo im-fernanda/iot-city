@@ -1,0 +1,8 @@
+{
+  "name": "Teste_Novo_01",
+  "type": "TRAFFIC_LIGHT",
+  "location": "Rua Teste Nova, Natal/RN",
+  "active": true,
+  "batteryLevel": 85,
+  "signalStrength": 90
+} 
