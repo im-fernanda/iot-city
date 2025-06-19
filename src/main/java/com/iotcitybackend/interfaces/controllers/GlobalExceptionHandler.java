@@ -10,13 +10,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
-import org.springframework.web.method.annotation.RequestParamMethodArgumentResolver;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
 
-@RestControllerAdvice
+@RestControllerAdvice(basePackages = "com.iotcitybackend.interfaces.controllers")
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
@@ -89,23 +87,5 @@ public class GlobalExceptionHandler {
         errorResponse.setPath(request.getDescription(false));
         
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
-    }
-
-    // Handler específico para exceções de negócio (não genérico)
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, WebRequest request) {
-        // Verifica se é uma exceção relacionada ao SpringDoc para não capturar
-        if (ex.getMessage() != null && ex.getMessage().contains("ControllerAdviceBean")) {
-            throw ex; // Re-lança a exceção para não interferir com o SpringDoc
-        }
-        
-        ErrorResponse errorResponse = new ErrorResponse();
-        errorResponse.setErrorCode(ErrorCodes.GENERAL_INTERNAL_ERROR);
-        errorResponse.setMessage("Erro interno do servidor");
-        errorResponse.setDetails("Ocorreu um erro inesperado: " + ex.getMessage());
-        errorResponse.setTimestamp(LocalDateTime.now());
-        errorResponse.setPath(request.getDescription(false));
-        
-        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 } 
