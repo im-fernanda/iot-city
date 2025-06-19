@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.method.annotation.RequestParamMethodArgumentResolver;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
@@ -18,60 +21,91 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoSuchElementException.class)
     public ResponseEntity<ErrorResponse> handleNoSuchElementException(NoSuchElementException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.of(
-            ErrorCodes.GENERAL_RESOURCE_NOT_FOUND,
-            "Recurso não encontrado",
-            ex.getMessage(),
-            request.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(error);
-    }
-
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.of(
-            ErrorCodes.GENERAL_VALIDATION_ERROR,
-            "Dados inválidos",
-            ex.getMessage(),
-            request.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.DEVICE_NOT_FOUND);
+        errorResponse.setMessage("Dispositivo não encontrado");
+        errorResponse.setDetails(ex.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex, WebRequest request) {
-        String fieldErrors = ex.getBindingResult().getFieldErrors().stream()
-                .map(error -> error.getField() + ": " + error.getDefaultMessage())
-                .reduce("", (a, b) -> a + "; " + b);
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_VALIDATION_ERROR);
+        errorResponse.setMessage("Erro de validação");
+        errorResponse.setDetails("Dados de entrada inválidos: " + ex.getBindingResult().getFieldErrors().get(0).getDefaultMessage());
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
         
-        ErrorResponse error = ErrorResponse.of(
-            ErrorCodes.GENERAL_VALIDATION_ERROR,
-            "Erro de validação",
-            "Campos inválidos: " + fieldErrors,
-            request.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<ErrorResponse> handleTypeMismatchException(MethodArgumentTypeMismatchException ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.of(
-            ErrorCodes.GENERAL_VALIDATION_ERROR,
-            "Tipo de parâmetro inválido",
-            "O parâmetro '" + ex.getName() + "' deve ser do tipo " + ex.getRequiredType().getSimpleName(),
-            request.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_VALIDATION_ERROR);
+        errorResponse.setMessage("Tipo de parâmetro inválido");
+        errorResponse.setDetails("O parâmetro '" + ex.getName() + "' deve ser do tipo correto");
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, WebRequest request) {
-        ErrorResponse error = ErrorResponse.of(
-            ErrorCodes.GENERAL_INTERNAL_ERROR,
-            "Erro interno do servidor",
-            "Ocorreu um erro inesperado: " + ex.getMessage(),
-            request.getDescription(false)
-        );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<ErrorResponse> handleMissingParameterException(MissingServletRequestParameterException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_VALIDATION_ERROR);
+        errorResponse.setMessage("Parâmetro obrigatório ausente");
+        errorResponse.setDetails("O parâmetro '" + ex.getParameterName() + "' é obrigatório");
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_VALIDATION_ERROR);
+        errorResponse.setMessage("Argumento inválido");
+        errorResponse.setDetails(ex.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(NumberFormatException.class)
+    public ResponseEntity<ErrorResponse> handleNumberFormatException(NumberFormatException ex, WebRequest request) {
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_VALIDATION_ERROR);
+        errorResponse.setMessage("Formato de número inválido");
+        errorResponse.setDetails("O valor fornecido não é um número válido");
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handler específico para exceções de negócio (não genérico)
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex, WebRequest request) {
+        // Verifica se é uma exceção relacionada ao SpringDoc para não capturar
+        if (ex.getMessage() != null && ex.getMessage().contains("ControllerAdviceBean")) {
+            throw ex; // Re-lança a exceção para não interferir com o SpringDoc
+        }
+        
+        ErrorResponse errorResponse = new ErrorResponse();
+        errorResponse.setErrorCode(ErrorCodes.GENERAL_INTERNAL_ERROR);
+        errorResponse.setMessage("Erro interno do servidor");
+        errorResponse.setDetails("Ocorreu um erro inesperado: " + ex.getMessage());
+        errorResponse.setTimestamp(LocalDateTime.now());
+        errorResponse.setPath(request.getDescription(false));
+        
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 } 
