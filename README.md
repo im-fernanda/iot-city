@@ -10,99 +10,18 @@
 
 ## 📋 Índice
 
-- [Documentação Interativa](#-documentação-interativa)
 - [Sobre o Projeto](#-sobre-o-projeto)
 - [Funcionalidades](#-funcionalidades)
+- [Documentação Interativa](#-documentação-interativa)
 - [Tecnologias](#-tecnologias)
 - [Arquitetura](#-arquitetura)
 - [Pré-requisitos](#-pré-requisitos)
 - [Instalação](#-instalação)
 - [Configuração](#-configuração)
 - [Uso](#-uso)
-- [O que Pode Ser Acessado](#-o-que-pode-ser-acessado)
+- [Desenvolvimento](#-desenvolvimento)
 - [Desenvolvimento](#-desenvolvimento)
 - [Troubleshooting](#-troubleshooting)
-
-## 📚 Documentação Interativa
-
-### 🎯 Swagger UI - Interface Completa da API
-**Acesse**: http://localhost:8080/swagger-ui.html
-
-O Swagger UI oferece:
-- **Interface intuitiva** para testar todos os endpoints
-- **Documentação detalhada** de cada operação
-- **Exemplos de payload** para cada requisição
-- **Respostas detalhadas** com códigos de status
-- **Validação em tempo real** dos parâmetros
-- **Teste direto** da API sem necessidade de ferramentas externas
-
-### 🔍 Endpoints Disponíveis
-
-#### **Dispositivos IoT** (`/api/devices`)
-- **Listar todos os dispositivos** - GET `/api/devices`
-- **Buscar dispositivo por ID** - GET `/api/devices/{id}`
-- **Criar novo dispositivo** - POST `/api/devices`
-- **Atualizar dispositivo** - PUT `/api/devices/{id}`
-- **Remover dispositivo** - DELETE `/api/devices/{id}`
-- **Dispositivos offline** - GET `/api/devices/offline`
-- **Dispositivos com bateria baixa** - GET `/api/devices/low-battery`
-- **Estatísticas de dispositivos** - GET `/api/devices/stats`
-
-#### **Dados de Sensores** (`/api/sensor-data`)
-- **Receber dados de sensor** - POST `/api/sensor-data`
-- **Listar todos os dados** - GET `/api/sensor-data`
-- **Buscar dados por ID** - GET `/api/sensor-data/{id}`
-- **Dados por dispositivo** - GET `/api/sensor-data/device/{deviceId}`
-- **Dados por tipo de sensor** - GET `/api/sensor-data/type/{sensorType}`
-- **Dados por período** - GET `/api/sensor-data/period`
-- **Dados por localização** - GET `/api/sensor-data/location`
-- **Média de valores** - GET `/api/sensor-data/average/{sensorType}`
-- **Dados mais recentes** - GET `/api/sensor-data/latest/device/{deviceId}`
-
-#### **Big Data** (`/api/bigdata`)
-- **Análises com Spark** - GET `/api/bigdata/analytics`
-- **Estatísticas agregadas** - GET `/api/bigdata/statistics`
-- **Processamento de dados** - POST `/api/bigdata/process`
-
-### 📊 Monitoramento e Saúde
-
-#### **Health Checks** (`/actuator`)
-- **Status da aplicação** - GET `/actuator/health`
-- **Status do banco de dados** - GET `/actuator/health/db`
-- **Detalhes completos** - GET `/actuator/health/details`
-
-#### **Métricas** (`/actuator/metrics`)
-- **Métricas JVM** - GET `/actuator/metrics/jvm.memory.used`
-- **Requisições HTTP** - GET `/actuator/metrics/http.server.requests`
-- **Conexões do banco** - GET `/actuator/metrics/hikaricp.connections`
-- **Tempo de resposta** - GET `/actuator/metrics/http.server.requests.duration`
-
-#### **Informações da Aplicação** (`/actuator`)
-- **Informações gerais** - GET `/actuator/info`
-- **Configurações** - GET `/actuator/configprops`
-- **Variáveis de ambiente** - GET `/actuator/env`
-
-### 🎯 Tipos de Dispositivos Suportados
-
-- **TRAFFIC_LIGHT** - Semáforos inteligentes
-- **AIR_QUALITY** - Sensores de qualidade do ar
-- **STREET_LIGHT** - Iluminação pública
-- **WATER_LEVEL** - Sensores de nível de água
-- **NOISE_SENSOR** - Sensores de ruído
-- **WEATHER_SENSOR** - Sensores meteorológicos
-- **SECURITY_CAMERA** - Câmeras de segurança
-- **PARKING_SENSOR** - Sensores de estacionamento
-- **WASTE_SENSOR** - Sensores de lixeiras
-- **SOLAR_PANEL** - Painéis solares
-
-### 📍 Dados de Exemplo Incluídos
-
-O sistema vem pré-carregado com:
-- **50+ dispositivos** distribuídos por Natal/RN e região
-- **Dados históricos** de sensores com timestamps variados
-- **Dispositivos offline** para teste de funcionalidades
-- **Dispositivos com bateria baixa** para alertas
-- **Coordenadas geográficas** reais da região
 
 ## 🎯 Sobre o Projeto
 
@@ -146,6 +65,50 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 - ✅ Validação de entrada
 - ✅ Tratamento de erros padronizado
 
+## 📚 Documentação Interativa
+### 🔍 Swagger UI - Interface Completa da API
+**Acesse**: http://localhost:8080/swagger-ui.html
+
+#### **Dispositivos IoT** (`/api/devices`)
+- **Listar todos os dispositivos** - GET `/api/devices`
+- **Buscar dispositivo por ID** - GET `/api/devices/{id}`
+- **Criar novo dispositivo** - POST `/api/devices`
+- **Atualizar dispositivo** - PUT `/api/devices/{id}`
+- **Remover dispositivo** - DELETE `/api/devices/{id}`
+- **Dispositivos offline** - GET `/api/devices/offline`
+- **Dispositivos com bateria baixa** - GET `/api/devices/low-battery`
+- **Estatísticas de dispositivos** - GET `/api/devices/stats`
+
+#### **Dados de Sensores** (`/api/sensor-data`)
+- **Receber dados de sensor** - POST `/api/sensor-data`
+- **Listar todos os dados** - GET `/api/sensor-data`
+- **Buscar dados por ID** - GET `/api/sensor-data/{id}`
+- **Dados por dispositivo** - GET `/api/sensor-data/device/{deviceId}`
+- **Dados por tipo de sensor** - GET `/api/sensor-data/type/{sensorType}`
+- **Dados por período** - GET `/api/sensor-data/period`
+- **Dados por localização** - GET `/api/sensor-data/location`
+- **Média de valores** - GET `/api/sensor-data/average/{sensorType}`
+- **Dados mais recentes** - GET `/api/sensor-data/latest/device/{deviceId}`
+
+#### **Big Data** (`/api/bigdata`)
+- **Análises com Spark** - GET `/api/bigdata/analytics`
+- **Estatísticas agregadas** - GET `/api/bigdata/statistics`
+- **Processamento de dados** - POST `/api/bigdata/process`
+
+### Tipos de Dispositivos Suportados
+
+- **TRAFFIC_LIGHT** - Semáforos inteligentes
+- **AIR_QUALITY** - Sensores de qualidade do ar
+- **STREET_LIGHT** - Iluminação pública
+- **WATER_LEVEL** - Sensores de nível de água
+- **NOISE_SENSOR** - Sensores de ruído
+- **WEATHER_SENSOR** - Sensores meteorológicos
+- **SECURITY_CAMERA** - Câmeras de segurança
+- **PARKING_SENSOR** - Sensores de estacionamento
+- **WASTE_SENSOR** - Sensores de lixeiras
+- **SOLAR_PANEL** - Painéis solares
+
+
 ## 🛠️ Tecnologias
 
 ### Backend
@@ -157,7 +120,6 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 
 ### Banco de Dados
 - **PostgreSQL 15** - Banco principal
-- **H2 Database** - Banco para testes
 
 ### Big Data
 - **Apache Spark 3.4.0** - Processamento de dados
@@ -188,12 +150,6 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-### Camadas da Aplicação
-1. **Controller** - Endpoints REST
-2. **Service** - Lógica de negócio
-3. **Repository** - Acesso a dados
-4. **Model** - Entidades JPA
-5. **DTO** - Objetos de transferência
 
 ## 📋 Pré-requisitos
 
@@ -206,6 +162,7 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 ### Para Docker
 - **Docker** 20.10 ou superior
 - **Docker Compose** 2.0 ou superior
+
 
 ## 🚀 Instalação
 
