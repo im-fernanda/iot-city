@@ -12,9 +12,9 @@
 
 - [Sobre o Projeto](#-sobre-o-projeto)
 - [Funcionalidades](#-funcionalidades)
-- [Documentação Interativa](#-documentação-interativa)
 - [Tecnologias](#-tecnologias)
-- [Arquitetura](#-arquitetura)
+- [Endpoints e documentação Interativa](#-documentação-interativa)
+- [Tecnologias](#-tecnologias)
 - [Pré-requisitos](#-pré-requisitos)
 - [Instalação](#-instalação)
 - [Configuração](#-configuração)
@@ -26,6 +26,7 @@
 ## 🎯 Sobre o Projeto
 
 O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerenciar dispositivos IoT em cidades inteligentes. O sistema oferece uma API REST completa para monitoramento, controle e análise de dados de sensores distribuídos pela cidade de Natal/RN e região.
+
 
 ### 🏙️ Casos de Uso
 
@@ -65,9 +66,33 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 - ✅ Validação de entrada
 - ✅ Tratamento de erros padronizado
 
-## 📚 Documentação Interativa
-### 🔍 Swagger UI - Interface Completa da API
-**Acesse**: http://localhost:8080/swagger-ui.html
+## 🛠️ Tecnologias
+
+### Backend
+- **Java 17** - Linguagem principal
+- **Spring Boot 3.3.12** - Framework principal
+- **Spring Data JPA** - Persistência de dados
+- **Spring Security** - Segurança
+- **Spring Boot Actuator** - Monitoramento
+
+### Banco de Dados
+- **PostgreSQL 15** - Banco principal
+
+### Big Data
+- **Apache Spark 3.4.0** - Processamento de dados
+- **Spark SQL** - Consultas SQL em dados distribuídos
+
+### Documentação
+- **OpenAPI 3** - Documentação da API
+- **Swagger UI** - Interface de teste da API
+
+### DevOps
+- **Docker** - Containerização
+- **Docker Compose** - Orquestração de containers
+- **Maven** - Gerenciamento de dependências
+
+## 📚 Endpoints disponíveis
+Para documentação interativa, após rodar a aplicação acesse: http://localhost:8080/swagger-ui.html ou http://localhost:8080/api-docs.
 
 #### **Dispositivos IoT** (`/api/devices`)
 - **Listar todos os dispositivos** - GET `/api/devices`
@@ -107,49 +132,6 @@ O **IoT City Backend** é uma aplicação Spring Boot desenvolvida para gerencia
 - **PARKING_SENSOR** - Sensores de estacionamento
 - **WASTE_SENSOR** - Sensores de lixeiras
 - **SOLAR_PANEL** - Painéis solares
-
-
-## 🛠️ Tecnologias
-
-### Backend
-- **Java 17** - Linguagem principal
-- **Spring Boot 3.3.12** - Framework principal
-- **Spring Data JPA** - Persistência de dados
-- **Spring Security** - Segurança
-- **Spring Boot Actuator** - Monitoramento
-
-### Banco de Dados
-- **PostgreSQL 15** - Banco principal
-
-### Big Data
-- **Apache Spark 3.4.0** - Processamento de dados
-- **Spark SQL** - Consultas SQL em dados distribuídos
-
-### Documentação
-- **OpenAPI 3** - Documentação da API
-- **Swagger UI** - Interface de teste da API
-
-### DevOps
-- **Docker** - Containerização
-- **Docker Compose** - Orquestração de containers
-- **Maven** - Gerenciamento de dependências
-
-## 🏗️ Arquitetura
-
-### Padrão MVC
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   Controller    │───▶│     Service     │───▶│   Repository    │
-│   (REST API)    │    │   (Business)    │    │   (Data Access) │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │
-         ▼                       ▼                       ▼
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│      DTO        │    │     Model       │    │   PostgreSQL    │
-│  (Response)     │    │   (Entity)      │    │   Database      │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-```
-
 
 ## 📋 Pré-requisitos
 
