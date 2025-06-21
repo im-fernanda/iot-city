@@ -1,3 +1,13 @@
+-- Configurações do PostgreSQL
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- Criar índices para melhor performance
+CREATE INDEX IF NOT EXISTS idx_sensor_data_device_id ON sensor_data(device_id);
+CREATE INDEX IF NOT EXISTS idx_sensor_data_timestamp ON sensor_data(timestamp);
+CREATE INDEX IF NOT EXISTS idx_sensor_data_sensor_type ON sensor_data(sensor_type);
+CREATE INDEX IF NOT EXISTS idx_devices_active ON devices(active);
+CREATE INDEX IF NOT EXISTS idx_devices_type ON devices(type);
+
 -- Dispositivos IoT para Cidade Inteligente - Natal/RN e Região
 
 -- SENSORES DE TRÁFEGO
@@ -80,14 +90,14 @@ INSERT INTO devices (name, type, location, active, last_seen, battery_level, sig
 ('Energia_Parnamirim_10', 'SOLAR_PANEL', 'Aeroporto Internacional de Natal, Parnamirim/RN', true, NOW(), 85, 90, NOW(), NOW()),
 ('Energia_SaoGoncalo_05', 'SOLAR_PANEL', 'Porto de São Gonçalo do Amarante/RN', true, NOW(), 80, 87, NOW(), NOW());
 
--- Dispositivos offline (para teste) - usando INTERVAL para PostgreSQL
+-- Dispositivos offline (para teste)
 INSERT INTO devices (name, type, location, active, last_seen, battery_level, signal_strength, created_at, updated_at) VALUES
 ('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW() - INTERVAL '10 minutes', 45, 60, NOW(), NOW()),
 ('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW() - INTERVAL '15 minutes', 30, 50, NOW(), NOW()),
 ('Teste_BateriaBaixa_01', 'STREET_LIGHT', 'Rua Bateria Baixa, Natal/RN', true, NOW(), 15, 70, NOW(), NOW()),
 ('Teste_BateriaBaixa_02', 'NOISE_SENSOR', 'Avenida Bateria Baixa, Parnamirim/RN', true, NOW(), 18, 65, NOW(), NOW());
 
--- Dados de sensores (exemplos)
+-- Dados de sensores 
 INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, latitude, longitude, created_at) VALUES
 (1, 'TRAFFIC_FLOW', 45.5, 'vehicles/min', NOW(), -5.7945, -35.2090, NOW()),
 (2, 'TRAFFIC_FLOW', 32.8, 'vehicles/min', NOW(), -5.7967, -35.2078, NOW()),
@@ -101,7 +111,7 @@ INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, 
 (31, 'WASTE_LEVEL', 67.3, '%', NOW(), -5.7967, -35.2078, NOW()),
 (36, 'SOLAR_POWER', 1250.8, 'W', NOW(), -5.7945, -35.2090, NOW());
 
--- Dados de sensores com timestamps variados (usando INTERVAL do PostgreSQL)
+-- Dados de sensores com timestamps variados
 INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, latitude, longitude, created_at) VALUES
 (1, 'TRAFFIC_FLOW', 52.1, 'vehicles/min', NOW() - INTERVAL '5 minutes', -5.7945, -35.2090, NOW()),
 (2, 'TRAFFIC_FLOW', 38.9, 'vehicles/min', NOW() - INTERVAL '3 minutes', -5.7967, -35.2078, NOW()),
