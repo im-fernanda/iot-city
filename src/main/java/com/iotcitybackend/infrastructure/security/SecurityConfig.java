@@ -22,7 +22,8 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(authz -> authz
                 .requestMatchers("/api/**").permitAll()
-                .requestMatchers("/swagger-ui/**", "/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui/**", "/swagger-ui.html").permitAll()
+                .requestMatchers("/api-docs/**", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .anyRequest().permitAll()

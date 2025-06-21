@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # Aplicação Spring Boot
   app:
     build: .
     container_name: iot-city-backend

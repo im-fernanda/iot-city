@@ -82,8 +82,8 @@ INSERT INTO devices (name, type, location, active, last_seen, battery_level, sig
 
 -- Dispositivos offline (para teste)
 INSERT INTO devices (name, type, location, active, last_seen, battery_level, signal_strength, created_at, updated_at) VALUES
-('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, DATEADD('MINUTE', -10, NOW()), 45, 60, NOW(), NOW()),
-('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, DATEADD('MINUTE', -15, NOW()), 30, 50, NOW(), NOW()),
+('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW() - INTERVAL '10 minutes', 45, 60, NOW(), NOW()),
+('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW() - INTERVAL '15 minutes', 30, 50, NOW(), NOW()),
 ('Teste_BateriaBaixa_01', 'STREET_LIGHT', 'Rua Bateria Baixa, Natal/RN', true, NOW(), 15, 70, NOW(), NOW()),
 ('Teste_BateriaBaixa_02', 'NOISE_SENSOR', 'Avenida Bateria Baixa, Parnamirim/RN', true, NOW(), 18, 65, NOW(), NOW());
 

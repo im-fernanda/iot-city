@@ -1,6 +1,6 @@
 -- Schema para dispositivos IoT
 CREATE TABLE IF NOT EXISTS devices (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
     location VARCHAR(255) NOT NULL,
@@ -14,14 +14,14 @@ CREATE TABLE IF NOT EXISTS devices (
 
 -- Schema para dados de sensores
 CREATE TABLE IF NOT EXISTS sensor_data (
-    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     device_id BIGINT NOT NULL,
     sensor_type VARCHAR(50) NOT NULL,
-    sensor_value DOUBLE NOT NULL,
+    sensor_value DOUBLE PRECISION NOT NULL,
     unit VARCHAR(20),
     timestamp TIMESTAMP NOT NULL,
-    latitude DOUBLE,
-    longitude DOUBLE,
+    latitude DOUBLE PRECISION,
+    longitude DOUBLE PRECISION,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (device_id) REFERENCES devices(id)
 );
