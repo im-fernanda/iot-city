@@ -1,6 +1,6 @@
 -- Schema para dispositivos IoT
 CREATE TABLE IF NOT EXISTS devices (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     type VARCHAR(50) NOT NULL,
     location VARCHAR(255) NOT NULL,
@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS devices (
 
 -- Schema para dados de sensores
 CREATE TABLE IF NOT EXISTS sensor_data (
-    id BIGSERIAL PRIMARY KEY,
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     device_id BIGINT NOT NULL,
     sensor_type VARCHAR(50) NOT NULL,
     sensor_value DOUBLE PRECISION NOT NULL,
@@ -32,4 +32,4 @@ CREATE INDEX IF NOT EXISTS idx_devices_location ON devices(location);
 CREATE INDEX IF NOT EXISTS idx_devices_active ON devices(active);
 CREATE INDEX IF NOT EXISTS idx_sensor_data_device_id ON sensor_data(device_id);
 CREATE INDEX IF NOT EXISTS idx_sensor_data_timestamp ON sensor_data(timestamp);
-CREATE INDEX IF NOT EXISTS idx_sensor_data_sensor_type ON sensor_data(sensor_type);
+CREATE INDEX IF NOT EXISTS idx_sensor_data_sensor_type ON sensor_data(sensor_type); 
