@@ -80,10 +80,10 @@ INSERT INTO devices (name, type, location, active, last_seen, battery_level, sig
 ('Energia_Parnamirim_10', 'SOLAR_PANEL', 'Aeroporto Internacional de Natal, Parnamirim/RN', true, NOW(), 85, 90, NOW(), NOW()),
 ('Energia_SaoGoncalo_05', 'SOLAR_PANEL', 'Porto de São Gonçalo do Amarante/RN', true, NOW(), 80, 87, NOW(), NOW());
 
--- Dispositivos offline (para teste)
+-- Dispositivos offline (para teste) - usando NOW() sem INTERVAL para compatibilidade com H2
 INSERT INTO devices (name, type, location, active, last_seen, battery_level, signal_strength, created_at, updated_at) VALUES
-('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW() - INTERVAL '10 minutes', 45, 60, NOW(), NOW()),
-('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW() - INTERVAL '15 minutes', 30, 50, NOW(), NOW()),
+('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW(), 45, 60, NOW(), NOW()),
+('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW(), 30, 50, NOW(), NOW()),
 ('Teste_BateriaBaixa_01', 'STREET_LIGHT', 'Rua Bateria Baixa, Natal/RN', true, NOW(), 15, 70, NOW(), NOW()),
 ('Teste_BateriaBaixa_02', 'NOISE_SENSOR', 'Avenida Bateria Baixa, Parnamirim/RN', true, NOW(), 18, 65, NOW(), NOW());
 
