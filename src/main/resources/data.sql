@@ -80,10 +80,10 @@ INSERT INTO devices (name, type, location, active, last_seen, battery_level, sig
 ('Energia_Parnamirim_10', 'SOLAR_PANEL', 'Aeroporto Internacional de Natal, Parnamirim/RN', true, NOW(), 85, 90, NOW(), NOW()),
 ('Energia_SaoGoncalo_05', 'SOLAR_PANEL', 'Porto de São Gonçalo do Amarante/RN', true, NOW(), 80, 87, NOW(), NOW());
 
--- Dispositivos offline (para teste) - usando NOW() sem INTERVAL para compatibilidade com H2
+-- Dispositivos offline (para teste) - usando INTERVAL para PostgreSQL
 INSERT INTO devices (name, type, location, active, last_seen, battery_level, signal_strength, created_at, updated_at) VALUES
-('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW(), 45, 60, NOW(), NOW()),
-('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW(), 30, 50, NOW(), NOW()),
+('Teste_Offline_01', 'TRAFFIC_LIGHT', 'Rua Teste, Natal/RN', false, NOW() - INTERVAL '10 minutes', 45, 60, NOW(), NOW()),
+('Teste_Offline_02', 'AIR_QUALITY', 'Avenida Teste, Parnamirim/RN', false, NOW() - INTERVAL '15 minutes', 30, 50, NOW(), NOW()),
 ('Teste_BateriaBaixa_01', 'STREET_LIGHT', 'Rua Bateria Baixa, Natal/RN', true, NOW(), 15, 70, NOW(), NOW()),
 ('Teste_BateriaBaixa_02', 'NOISE_SENSOR', 'Avenida Bateria Baixa, Parnamirim/RN', true, NOW(), 18, 65, NOW(), NOW());
 
@@ -99,4 +99,18 @@ INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, 
 (22, 'HUMIDITY', 78.2, '%', NOW(), -5.7967, -35.2078, NOW()),
 (26, 'PARKING_OCCUPANCY', 85.0, '%', NOW(), -5.7945, -35.2090, NOW()),
 (31, 'WASTE_LEVEL', 67.3, '%', NOW(), -5.7967, -35.2078, NOW()),
-(36, 'SOLAR_POWER', 1250.8, 'W', NOW(), -5.7945, -35.2090, NOW()); 
+(36, 'SOLAR_POWER', 1250.8, 'W', NOW(), -5.7945, -35.2090, NOW());
+
+-- Dados de sensores com timestamps variados (usando INTERVAL do PostgreSQL)
+INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, latitude, longitude, created_at) VALUES
+(1, 'TRAFFIC_FLOW', 52.1, 'vehicles/min', NOW() - INTERVAL '5 minutes', -5.7945, -35.2090, NOW()),
+(2, 'TRAFFIC_FLOW', 38.9, 'vehicles/min', NOW() - INTERVAL '3 minutes', -5.7967, -35.2078, NOW()),
+(6, 'PM25', 15.7, 'μg/m³', NOW() - INTERVAL '2 minutes', -5.7945, -35.2090, NOW()),
+(7, 'PM25', 11.2, 'μg/m³', NOW() - INTERVAL '1 minute', -5.7967, -35.2078, NOW()),
+(11, 'WATER_LEVEL', 18.5, 'cm', NOW() - INTERVAL '10 minutes', -5.7945, -35.2090, NOW()),
+(16, 'NOISE_LEVEL', 72.1, 'dB', NOW() - INTERVAL '8 minutes', -5.7967, -35.2078, NOW()),
+(21, 'TEMPERATURE', 29.8, '°C', NOW() - INTERVAL '15 minutes', -5.7945, -35.2090, NOW()),
+(22, 'HUMIDITY', 82.5, '%', NOW() - INTERVAL '12 minutes', -5.7967, -35.2078, NOW()),
+(26, 'PARKING_OCCUPANCY', 92.3, '%', NOW() - INTERVAL '7 minutes', -5.7945, -35.2090, NOW()),
+(31, 'WASTE_LEVEL', 78.9, '%', NOW() - INTERVAL '20 minutes', -5.7967, -35.2078, NOW()),
+(36, 'SOLAR_POWER', 1380.2, 'W', NOW() - INTERVAL '30 minutes', -5.7945, -35.2090, NOW()); 
