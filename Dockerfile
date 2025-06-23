@@ -5,14 +5,13 @@ FROM node:18-alpine AS frontend-build
 WORKDIR /app
 
 # Copiar package.json do frontend
-COPY frontend/package*.json ./frontend/
+COPY frontend/package*.json ./
 
 # Instalar dependências do frontend
-WORKDIR /app/frontend
 RUN npm install
 
 # Copiar código fonte do frontend
-COPY frontend/ .
+COPY frontend/ ./
 
 # Build do frontend
 RUN npm run build
@@ -59,7 +58,7 @@ RUN mkdir -p /var/log/nginx /var/lib/nginx /run/nginx && \
 WORKDIR /app
 
 # Copiar build do frontend
-COPY --from=frontend-build /app/frontend/build /usr/share/nginx/html
+COPY --from=frontend-build /app/build /usr/share/nginx/html
 
 # Copiar JAR do backend
 COPY --from=backend-build /app/target/*.jar app.jar
