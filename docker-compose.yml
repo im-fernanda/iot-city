@@ -1,32 +1,28 @@
+version: '3.8'
+
 services:
+  # Aplicação completa (Frontend + Backend)
   app:
-    build: .
-    container_name: iot-city-backend
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "3000:80"  # Frontend via Nginx
+      - "8080:8080"  # Backend direto
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/iotcity
       - SPRING_DATASOURCE_USERNAME=iotcity_user
       - SPRING_DATASOURCE_PASSWORD=iotcity_pass
-      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.PostgreSQLDialect
     depends_on:
       - db
     networks:
-      - iot-network
+      - iot-city-network
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 60s
 
-  # Banco de dados PostgreSQL
+  # PostgreSQL Database
   db:
     image: postgres:15-alpine
-    container_name: iot-city-db
     environment:
       - POSTGRES_DB=iotcity
       - POSTGRES_USER=iotcity_user
@@ -35,8 +31,10 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./src/main/resources/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql
+      - ./src/main/resources/data.sql:/docker-entrypoint-initdb.d/02-data.sql
     networks:
-      - iot-network
+      - iot-city-network
     restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U iotcity_user -d iotcity"]
@@ -44,9 +42,10 @@ services:
       timeout: 5s
       retries: 5
 
-networks:
-  iot-network:
-    driver: bridge
-
 volumes:
-  postgres_data: 
+  postgres_data:
+    driver: local
+
+networks:
+  iot-city-network:
+    driver: bridge 

@@ -3,6 +3,7 @@ package com.iotcitybackend.service;
 import com.iotcitybackend.model.Device;
 import com.iotcitybackend.repository.DeviceRepository;
 import com.iotcitybackend.dto.DeviceDTO;
+import com.iotcitybackend.dto.UpdateDeviceDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -45,18 +47,25 @@ public class DeviceService {
     }
     
     // Atualizar dispositivo
-    public Device updateDevice(Long id, Device deviceDetails) {
+    public Device updateDevice(Long id, Map<String, Object> updates) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
         if (deviceOpt.isPresent()) {
             Device device = deviceOpt.get();
             
-            if (deviceDetails.getName() != null) device.setName(deviceDetails.getName());
-            if (deviceDetails.getType() != null) device.setType(deviceDetails.getType());
-            if (deviceDetails.getLocation() != null) device.setLocation(deviceDetails.getLocation());
-            if (deviceDetails.getBatteryLevel() != null) device.setBatteryLevel(deviceDetails.getBatteryLevel());
-            if (deviceDetails.getSignalStrength() != null) device.setSignalStrength(deviceDetails.getSignalStrength());
-
-            device.setActive(deviceDetails.isActive());
+            // Atualiza apenas os campos fornecidos no Map
+            if (updates.containsKey("name")) {
+                String name = (String) updates.get("name");
+                if (name != null && !name.trim().isEmpty()) {
+                    device.setName(name.trim());
+                }
+            }
+            
+            if (updates.containsKey("location")) {
+                String location = (String) updates.get("location");
+                if (location != null && !location.trim().isEmpty()) {
+                    device.setLocation(location.trim());
+                }
+            }
 
             return deviceRepository.save(device);
         }

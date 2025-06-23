@@ -7,6 +7,7 @@ import com.iotcitybackend.dto.DeviceStatsDTO;
 import com.iotcitybackend.dto.OfflineTimeoutConfigDTO;
 import com.iotcitybackend.dto.ErrorResponse;
 import com.iotcitybackend.exception.ErrorCodes;
+import com.iotcitybackend.dto.UpdateDeviceDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/devices")
@@ -168,58 +170,26 @@ public class DeviceController {
     @Operation(
         summary = "Atualizar dispositivo", 
         description = """
-            Atualiza um dispositivo existente pelo ID.
-            
-            **Campos que podem ser atualizados:**
-            - `name`: Nome do dispositivo
-            - `type`: Tipo do dispositivo
-            - `location`: Localização do dispositivo
-            - `active`: Status ativo/inativo
-            - `batteryLevel`: Nível de bateria (0-100)
-            - `signalStrength`: Força do sinal (0-100)
-            
-            **Campos preenchidos automaticamente:**
-            - `updatedAt`: Data/hora da última atualização
+            Atualiza parcialmente um dispositivo existente pelo ID. 
+            Apenas os campos `name` e `location` podem ser atualizados.
             """
     )
     @ApiResponses(value = {
         @ApiResponse(
             responseCode = "200", 
             description = "Dispositivo atualizado com sucesso",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = DeviceDTO.class)
-            )
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = DeviceDTO.class))
         ),
         @ApiResponse(
             responseCode = "404", 
-            description = "Dispositivo não encontrado",
-            content = @Content(
-                mediaType = "application/json",
-                schema = @Schema(example = "{\"error\": \"Dispositivo com ID 999 não encontrado\"}")
-            )
+            description = "Dispositivo não encontrado"
         )
     })
     public ResponseEntity<DeviceDTO> updateDevice(
-            @Parameter(description = "ID do dispositivo a ser atualizado", example = "1") @PathVariable Long id,
-            @Parameter(description = "Nome do dispositivo", example = "Semaforo_Petropolis_01_Atualizado") @RequestParam(required = false) String name,
-            @Parameter(description = "Tipo do dispositivo", example = "TRAFFIC_LIGHT") @RequestParam(required = false) String type,
-            @Parameter(description = "Localização do dispositivo", example = "Avenida Hermes da Fonseca, Petrópolis, Natal/RN") @RequestParam(required = false) String location,
-            @Parameter(description = "Status ativo/inativo", example = "true") @RequestParam(required = false) Boolean active,
-            @Parameter(description = "Nível de bateria (0-100)", example = "90") @RequestParam(required = false) Integer batteryLevel,
-            @Parameter(description = "Força do sinal (0-100)", example = "95") @RequestParam(required = false) Integer signalStrength) {
+            @Parameter(description = "ID do dispositivo a ser atualizado") @PathVariable Long id,
+            @RequestBody Map<String, Object> updates) {
         
-        Device deviceDetails = new Device();
-        deviceDetails.setName(name);
-        deviceDetails.setType(type);
-        deviceDetails.setLocation(location);
-        if (active != null) {
-            deviceDetails.setActive(active);
-        }
-        deviceDetails.setBatteryLevel(batteryLevel);
-        deviceDetails.setSignalStrength(signalStrength);
-        
-        Device updatedDevice = deviceService.updateDevice(id, deviceDetails);
+        Device updatedDevice = deviceService.updateDevice(id, updates);
         if (updatedDevice != null) {
             return ResponseEntity.ok(convertToDTO(updatedDevice));
         }
@@ -347,11 +317,10 @@ public class DeviceController {
         @ApiResponse(responseCode = "200", description = "Status do dispositivo alterado com sucesso"),
         @ApiResponse(responseCode = "404", description = "Dispositivo não encontrado")
     })
-    public ResponseEntity<DeviceDTO> toggleDeviceStatus(
-            @Parameter(description = "ID do dispositivo") @PathVariable Long id) {
-        Device device = deviceService.toggleDeviceStatus(id);
-        if (device != null) {
-            return ResponseEntity.ok(convertToDTO(device));
+    public ResponseEntity<DeviceDTO> toggleDeviceStatus(@Parameter(description = "ID do dispositivo") @PathVariable Long id) {
+        Device updatedDevice = deviceService.toggleDeviceStatus(id);
+        if (updatedDevice != null) {
+            return ResponseEntity.ok(convertToDTO(updatedDevice));
         }
         return ResponseEntity.notFound().build();
     }
