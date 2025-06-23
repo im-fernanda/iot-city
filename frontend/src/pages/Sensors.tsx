@@ -25,7 +25,7 @@ interface SensorData {
 }
 
 // Cores para as linhas do gráfico
-const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
+const COLORS = ['#38bdf8', '#82ca9d', '#ffc658', '#ff8042', '#0088FE', '#00C49F'];
 
 const Sensors: React.FC = () => {
   const [devices, setDevices] = useState<Device[]>([]);
@@ -169,8 +169,12 @@ const Sensors: React.FC = () => {
         </div>
         <div className="filter-group">
           <label>Dispositivo</label>
-          <select value={selectedDevice} onChange={e => setSelectedDevice(e.target.value)}>
-            <option value="">Selecione um dispositivo</option>
+          <select 
+            value={selectedDevice} 
+            onChange={e => setSelectedDevice(e.target.value)}
+            disabled={!selectedType}
+          >
+            <option value="">{selectedType ? "Selecione um dispositivo" : "Selecione um tipo primeiro"}</option>
             {devices.map(device => (
               <option key={device.id} value={device.id}>{device.name}</option>
             ))}
@@ -192,9 +196,6 @@ const Sensors: React.FC = () => {
           </div>
         ) : (
           <>
-            <h3 className="graph-title">
-              {`Histórico de ${selectedType} para o dispositivo ${selectedDeviceName}`}
-            </h3>
             <ResponsiveContainer width="100%" height={400}>
               <LineChart data={sensorData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#ffffff30" />
