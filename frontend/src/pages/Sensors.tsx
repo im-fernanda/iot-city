@@ -88,10 +88,10 @@ const Sensors: React.FC = () => {
 
   // Busca dados do gráfico quando um dispositivo ou tipo de sensor muda
   useEffect(() => {
-    if (selectedDevice) {
+    if (selectedDevice && selectedType) {
       fetchSensorData();
     } else {
-      setSensorData([]); // Limpa o gráfico se nenhum dispositivo estiver selecionado
+      setSensorData([]); // Limpa o gráfico se a seleção não estiver completa
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDevice, selectedType]);
@@ -110,59 +110,45 @@ const Sensors: React.FC = () => {
   };
 
   const fetchSensorData = async () => {
-    // A busca agora só precisa de um dispositivo selecionado
-    if (!selectedDevice) return;
+    // A busca agora só acontece se ambos os filtros estiverem selecionados
+    if (!selectedType || !selectedDevice) return;
 
+    setLoading(true);
+    setError(null);
     try {
       const startDate = new Date();
       startDate.setHours(startDate.getHours() - 24);
       
-      const params: any = {
+      const params = {
         deviceId: selectedDevice,
+        sensorType: selectedType,
         start: startDate.toISOString(),
         end: new Date().toISOString()
       };
-
-      // Adiciona o tipo de sensor apenas se ele estiver selecionado
-      if (selectedType) {
-        params.sensorType = selectedType;
-      }
       
-      const response = await api.get('/sensor-data/search', { params });
+      const response = await api.get('/sensor-data', { params });
 
       const data = response.data.map((item: any) => ({
         ...item,
         value: item.sensorValue,
-        deviceId: item.device.id,
-        deviceName: item.device.name
+        timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
       }));
 
       setSensorData(data);
     } catch (error) {
       console.error('Erro ao buscar dados do sensor:', error);
+      setError("Falha ao buscar dados do sensor.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Prepara os dados para o gráfico, agrupando por timestamp
-  const chartData = sensorData.reduce((acc, { timestamp, sensorType, value }) => {
-    const time = new Date(timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-    
-    let entry = acc.find(item => item.time === time);
-
-    if (!entry) {
-      entry = { time };
-      acc.push(entry);
-    }
-    
-    entry[sensorType] = value;
-    return acc;
-  }, [] as any[]);
-
-  // Ordena os dados por tempo para que a linha do gráfico seja desenhada corretamente
-  chartData.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
-
-  // Agrupa os tipos de sensor presentes nos dados para renderizar múltiplas linhas
-  const dataSensorTypes = Array.from(new Set(sensorData.map(d => d.sensorType)));
+  const selectedDeviceName = devices.find(d => d.id === Number(selectedDevice))?.name;
   
   return (
     <div className="sensors-page">
@@ -199,47 +185,55 @@ const Sensors: React.FC = () => {
           <div className="error">{error}</div>
         ) : sensorData.length === 0 ? (
           <div className="no-data">
-            {selectedDevice 
+            {selectedType && selectedDevice 
               ? "Nenhum dado encontrado para o filtro selecionado."
-              : "Por favor, selecione um dispositivo para exibir o gráfico."
+              : "Por favor, selecione um tipo de sensor e um dispositivo para exibir o gráfico."
             }
           </div>
         ) : (
-          <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff30" />
-              <XAxis 
-                dataKey="time" 
-                stroke="#ffffff90"
-                tick={{ fill: '#ffffff90' }}
-                angle={-20}
-                textAnchor="end"
-                height={50}
-              />
-              <YAxis stroke="#ffffff90" tick={{ fill: '#ffffff90' }} />
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'rgba(30, 41, 59, 0.8)',
-                  borderColor: '#4A5568',
-                  color: '#E2E8F0'
-                }}
-                labelFormatter={(value: string) => `Horário: ${value}`}
-              />
-              <Legend wrapperStyle={{ color: '#E2E8F0', paddingTop: '20px' }} />
-              {dataSensorTypes.map((type, index) => (
+          <>
+            <h3 className="graph-title">
+              {`Histórico de ${selectedType} para o dispositivo ${selectedDeviceName}`}
+            </h3>
+            <ResponsiveContainer width="100%" height={400}>
+              <LineChart data={sensorData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#ffffff30" />
+                <XAxis 
+                  dataKey="timestamp" 
+                  stroke="#ffffff90"
+                  tick={{ fill: '#ffffff90' }}
+                  angle={-20}
+                  textAnchor="end"
+                  height={50}
+                />
+                <YAxis 
+                  stroke="#ffffff90" 
+                  tick={{ fill: '#ffffff90' }}
+                  label={{ value: getUnit(selectedType), angle: -90, position: 'insideLeft', fill: '#ffffff90' }}
+                />
+                <Tooltip 
+                  contentStyle={{ 
+                    backgroundColor: 'rgba(30, 41, 59, 0.8)',
+                    borderColor: '#4A5568',
+                    color: '#E2E8F0'
+                  }}
+                  labelFormatter={(value: string) => `Horário: ${value}`}
+                  formatter={(value: number, name: string) => [`${value} ${getUnit(name)}`, name]}
+                />
+                <Legend wrapperStyle={{ color: '#E2E8F0', paddingTop: '20px' }} />
                 <Line 
-                  key={type}
+                  key={selectedType}
                   type="monotone" 
-                  dataKey={type} 
-                  name={type}
-                  stroke={COLORS[index % COLORS.length]}
+                  dataKey="value"
+                  name={selectedType}
+                  stroke={COLORS[0]}
                   strokeWidth={2}
                   dot={false}
                   activeDot={{ r: 6 }}
                 />
-              ))}
-            </LineChart>
-          </ResponsiveContainer>
+              </LineChart>
+            </ResponsiveContainer>
+          </>
         )}
       </div>
     </div>
