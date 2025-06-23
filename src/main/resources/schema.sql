@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS sensor_data (
     latitude DOUBLE PRECISION,
     longitude DOUBLE PRECISION,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (device_id) REFERENCES devices(id)
+    FOREIGN KEY (device_id) REFERENCES devices(id) ON DELETE CASCADE
 );
 
 -- Índices para melhor performance
