@@ -16,9 +16,6 @@ api.interceptors.response.use(
       error.response?.data
     );
     
-    // Você poderia adicionar aqui um sistema de notificação global para o usuário
-    // Ex: toast.error('Ocorreu um erro. Tente novamente mais tarde.');
-
     return Promise.reject(error);
   }
 );

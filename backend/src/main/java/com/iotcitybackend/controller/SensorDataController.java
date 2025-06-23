@@ -6,6 +6,7 @@ import com.iotcitybackend.service.DeviceService;
 import com.iotcitybackend.model.Device;
 import com.iotcitybackend.exception.ErrorCodes;
 import com.iotcitybackend.dto.ErrorResponse;
+import com.iotcitybackend.dto.DeviceDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,7 +27,7 @@ import java.util.Set;
 @RestController
 @RequestMapping("/api/sensor-data")
 @CrossOrigin(origins = "*")
-@Tag(name = "Dados de Sensor", description = "API para gerenciamento de dados de sensores IoT")
+@Tag(name = "Sensor Data", description = "APIs para gerenciamento de dados de sensores")
 public class SensorDataController {
     
     private static final Set<String> VALID_SENSOR_TYPES = Set.of(
@@ -74,8 +75,7 @@ public class SensorDataController {
             @Parameter(description = "Valor medido pelo sensor") @RequestParam Double value,
             @Parameter(description = "Unidade de medida") @RequestParam(required = false) String unit,
             @Parameter(description = "Latitude da localização") @RequestParam(required = false) Double latitude,
-            @Parameter(description = "Longitude da localização") @RequestParam(required = false) Double longitude,
-            @Parameter(description = "Data/hora da medição") @RequestParam(required = false) LocalDateTime timestamp) {
+            @Parameter(description = "Longitude da localização") @RequestParam(required = false) Double longitude) {
         
         // Validações
         if (deviceId == null || deviceId <= 0) {
@@ -167,7 +167,6 @@ public class SensorDataController {
         sensorData.setUnit(unit);
         sensorData.setLatitude(latitude);
         sensorData.setLongitude(longitude);
-        sensorData.setTimestamp(timestamp);
         
         SensorData savedData = sensorDataService.saveSensorData(sensorData);
         return ResponseEntity.status(HttpStatus.CREATED).body(savedData);
@@ -189,13 +188,29 @@ public class SensorDataController {
     }
     
     @GetMapping
-    @Operation(summary = "Listar todos os dados de sensor", description = "Retorna todos os dados de sensores cadastrados no sistema")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Lista de dados retornada com sucesso")
-    })
-    public ResponseEntity<List<SensorData>> getAllSensorData() {
-        List<SensorData> data = sensorDataService.getAllSensorData();
+    @Operation(summary = "Buscar dados de sensor", description = "Busca dados de sensor por tipo, dispositivo e período")
+    public ResponseEntity<List<SensorData>> getSensorData(
+            @RequestParam String sensorType,
+            @RequestParam(required = false) Long deviceId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+        
+        List<SensorData> data = sensorDataService.getSensorData(sensorType, deviceId, start, end);
         return ResponseEntity.ok(data);
+    }
+    
+    @GetMapping("/types")
+    @Operation(summary = "Listar tipos de sensor", description = "Retorna todos os tipos de sensor disponíveis")
+    public ResponseEntity<List<String>> getSensorTypes() {
+        List<String> types = sensorDataService.getSensorTypes();
+        return ResponseEntity.ok(types);
+    }
+    
+    @GetMapping("/devices/{sensorType}")
+    @Operation(summary = "Buscar dispositivos por tipo de sensor", description = "Retorna dispositivos que possuem dados do tipo de sensor especificado")
+    public ResponseEntity<List<DeviceDTO>> getDevicesBySensorType(@PathVariable String sensorType) {
+        List<DeviceDTO> devices = sensorDataService.getDevicesBySensorType(sensorType);
+        return ResponseEntity.ok(devices);
     }
     
     @GetMapping("/device/{deviceId}")

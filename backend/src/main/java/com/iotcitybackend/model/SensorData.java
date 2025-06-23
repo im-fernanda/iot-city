@@ -42,7 +42,7 @@ public class SensorData {
     @Column(name = "unit")
     @Schema(description = "Unidade de medida", example = "CELSIUS", allowableValues = {"CELSIUS", "PERCENTAGE", "PPM"})
     private String unit;
-    
+
     @Column(name = "timestamp", nullable = false)
     @Schema(description = "Data e hora da medição", example = "2024-03-15T10:30:00")
     private LocalDateTime timestamp;
@@ -54,7 +54,7 @@ public class SensorData {
     @Column(name = "longitude")
     @Schema(description = "Longitude da localização do sensor", example = "-35.2009")
     private Double longitude;
-    
+
     @Column(name = "created_at")
     @Schema(description = "Data e hora do registro no sistema", example = "2024-03-15T10:30:01")
     private LocalDateTime createdAt;

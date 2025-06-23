@@ -12,10 +12,16 @@ interface Device {
 
 interface SensorData {
   id: number;
-  deviceId: number;
+  device: {
+    id: number;
+    name: string;
+  };
   sensorType: string;
-  sensorValue: number;
+  value: number;
+  unit: string;
   timestamp: string;
+  latitude?: number;
+  longitude?: number;
 }
 
 // Cores para as linhas do gráfico
@@ -36,18 +42,14 @@ const Sensors: React.FC = () => {
   useEffect(() => {
     const fetchFilterData = async () => {
       try {
-        const [devicesRes, sensorDataRes] = await Promise.all([
-          api.get('/devices'),
-          api.get('/sensor-data') 
+        // Busca os tipos de sensores e todos os dispositivos
+        const [typesRes, devicesRes] = await Promise.all([
+          api.get('/sensor-data/types'),
+          api.get('/devices')
         ]);
+        setSensorTypes(typesRes.data);
         setAllDevices(devicesRes.data);
-        setDevices(devicesRes.data);
-        setAllSensorData(sensorDataRes.data);
-        
-        // Filtra apenas os tipos de sensores que realmente têm dados
-        const sensorData = sensorDataRes.data;
-        const typesWithData = Array.from(new Set(sensorData.map((d: any) => d.sensorType))) as string[];
-        setSensorTypes(typesWithData);
+        setDevices(devicesRes.data); 
       } catch {
         setError("Erro ao carregar filtros");
       }
@@ -57,86 +59,92 @@ const Sensors: React.FC = () => {
 
   // Filtra dispositivos quando o tipo de sensor muda
   useEffect(() => {
-    if (selectedType) {
-      // Filtra dispositivos que têm dados do tipo selecionado
-      const devicesWithTypeData = allSensorData
-        .filter(data => data.sensorType === selectedType)
-        .map(data => data.deviceId);
-      
-      const filteredDevices = allDevices.filter(device => 
-        devicesWithTypeData.includes(device.id)
-      );
-      setDevices(filteredDevices);
-      
-      // Limpa a seleção de dispositivo se o dispositivo atual não tem dados do tipo selecionado
-      if (selectedDevice && !devicesWithTypeData.includes(Number(selectedDevice))) {
-        setSelectedDevice('');
-      }
-    } else {
-      // Se nenhum tipo está selecionado, mostra todos os dispositivos
-      setDevices(allDevices);
-    }
-  }, [selectedType, allDevices, allSensorData, selectedDevice]);
+    const fetchDevicesForType = async () => {
+      if (selectedType) {
+        try {
+          // Busca os dispositivos que têm dados para o tipo de sensor selecionado
+          const response = await api.get(`/sensor-data/devices/${selectedType}`);
+          setDevices(response.data);
 
-  // Busca dados do gráfico quando os filtros mudam
+          // Limpa a seleção de dispositivo se o dispositivo atual não está na nova lista
+          if (selectedDevice && !response.data.some((d: Device) => d.id === Number(selectedDevice))) {
+            setSelectedDevice('');
+          }
+        } catch (error) {
+          console.error("Erro ao buscar dispositivos para o tipo:", error);
+          setDevices([]); // Limpa a lista em caso de erro
+        }
+      } else {
+        // Se nenhum tipo está selecionado, mostra todos os dispositivos
+        setDevices(allDevices);
+      }
+    };
+
+    fetchDevicesForType();
+  }, [selectedType, allDevices]);
+
+  // Busca dados do gráfico quando um dispositivo é selecionado
   useEffect(() => {
-    if (!selectedType && !selectedDevice) {
-      setSensorData([]); // Limpa o gráfico se nenhum filtro estiver selecionado
-      return;
+    if (selectedDevice) {
+      fetchSensorData();
+    } else {
+      setSensorData([]); // Limpa o gráfico se nenhum dispositivo estiver selecionado
     }
-    fetchChartData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedType, selectedDevice]);
+  }, [selectedDevice]);
 
-  const fetchChartData = async () => {
-    setLoading(true);
-    setError(null);
+  const getUnit = (sensorType: string): string => {
+    switch (sensorType) {
+      case 'TEMPERATURE':
+        return '°C';
+      case 'HUMIDITY':
+        return '%';
+      case 'PM25':
+        return 'μg/m³';
+      default:
+        return '';
+    }
+  };
+
+  const fetchSensorData = async () => {
+    if (!selectedType || !selectedDevice) return;
+
     try {
-      let url = '/sensor-data';
-      if (selectedDevice) {
-        url = `/sensor-data/device/${selectedDevice}`;
-      } else if (selectedType) {
-        url = `/sensor-data/type/${selectedType}`;
-      }
+      const startDate = new Date();
+      startDate.setHours(startDate.getHours() - 24);
       
-      const response = await api.get(url);
-      let data = response.data;
+      const response = await api.get('/sensor-data', {
+        params: {
+          sensorType: selectedType,
+          deviceId: selectedDevice,
+          start: startDate.toISOString(),
+          end: new Date().toISOString()
+        }
+      });
 
-      // Filtra adicionalmente por tipo se ambos estiverem selecionados
-      if (selectedDevice && selectedType) {
-        data = data.filter((d: SensorData) => d.sensorType === selectedType);
-      }
-      
+      const data = response.data.map((item: any) => ({
+        ...item,
+        deviceId: item.device.id,
+        deviceName: item.device.name
+      }));
+
       setSensorData(data);
-    } catch (err) {
-      setError('Erro ao buscar dados do sensor');
-      setSensorData([]);
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      console.error('Erro ao buscar dados do sensor:', error);
     }
   };
 
   // Prepara os dados para o gráfico
-  const chartData = (
-    Object.values(
-      sensorData.reduce((acc, { timestamp, sensorType, sensorValue }) => {
-        const time = new Date(timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-        
-        if (!acc[time]) {
-          acc[time] = { time };
-        }
-        
-        acc[time][sensorType] = sensorValue;
-        return acc;
-      }, {} as Record<string, any>)
-    )
-    .sort((a, b) => {
-      // Extrai a hora e o minuto para uma comparação robusta
-      const [aHour, aMinute] = a.time.split(':').map(Number);
-      const [bHour, bMinute] = b.time.split(':').map(Number);
-      return aHour * 60 + aMinute - (bHour * 60 + bMinute);
-    })
-  );
+  const chartData = sensorData.reduce((acc, { timestamp, sensorType, value }) => {
+    const time = new Date(timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    
+    if (!acc[time]) {
+      acc[time] = { time };
+    }
+    
+    acc[time][sensorType] = value;
+    return acc;
+  }, {} as Record<string, any>);
 
   // Agrupa os tipos de sensor presentes nos dados para renderizar múltiplas linhas
   const dataSensorTypes = Array.from(new Set(sensorData.map(d => d.sensorType)));
@@ -174,7 +182,7 @@ const Sensors: React.FC = () => {
           <div className="loading"><div className="spinner"></div>Carregando dados...</div>
         ) : error ? (
           <div className="error">{error}</div>
-        ) : chartData.length === 0 ? (
+        ) : sensorData.length === 0 ? (
           <div className="no-data">
             {selectedType || selectedDevice 
               ? "Nenhum dado encontrado para o filtro selecionado."
@@ -183,22 +191,34 @@ const Sensors: React.FC = () => {
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="time" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              {dataSensorTypes.map((type, index) => (
-                <Line 
-                  key={type} 
-                  type="monotone" 
-                  dataKey={type} 
-                  name={type} 
-                  stroke={COLORS[index % COLORS.length]} 
-                  dot={false}
-                />
-              ))}
+            <LineChart data={sensorData}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#ffffff30" />
+              <XAxis 
+                dataKey="timestamp" 
+                tickFormatter={(value: string) => new Date(value).toLocaleTimeString()}
+                stroke="#ffffff90"
+                tick={{ fill: '#ffffff90' }}
+              />
+              <YAxis stroke="#ffffff90" tick={{ fill: '#ffffff90' }} />
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'rgba(30, 41, 59, 0.8)',
+                  borderColor: '#4A5568',
+                  color: '#E2E8F0'
+                }}
+                labelFormatter={(value: string) => new Date(value).toLocaleString()}
+                formatter={(value: any, name: string) => [`${value} ${getUnit(selectedType)}`, selectedType]}
+              />
+              <Legend wrapperStyle={{ color: '#E2E8F0' }} />
+              <Line 
+                type="monotone" 
+                dataKey="value" 
+                name={selectedType}
+                stroke="#38bdf8" 
+                strokeWidth={2}
+                dot={{ r: 4, fill: '#38bdf8' }}
+                activeDot={{ r: 8 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         )}
