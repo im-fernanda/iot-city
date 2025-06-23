@@ -38,13 +38,6 @@ const Navbar: React.FC = () => {
         >
           📈 Sensores
         </Link>
-        
-        <Link 
-          to="/add-device" 
-          className={`navbar-item ${isActive('/add-device') ? 'active' : ''}`}
-        >
-          ➕ Adicionar
-        </Link>
       </div>
     </nav>
   );

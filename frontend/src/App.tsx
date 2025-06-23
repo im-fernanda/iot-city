@@ -16,7 +16,6 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/devices" element={<Devices />} />
             <Route path="/sensors" element={<Sensors />} />
-            <Route path="/add-device" element={<div className="coming-soon">➕ Página de Adicionar Dispositivo - Em breve!</div>} />
           </Routes>
         </main>
       </div>
