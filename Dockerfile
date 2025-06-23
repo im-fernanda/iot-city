@@ -10,8 +10,10 @@ COPY frontend/package*.json ./
 # Instalar dependências do frontend
 RUN npm install
 
-# Copiar código fonte do frontend
-COPY frontend/ ./
+# Copiar arquivos do frontend de forma explícita
+COPY frontend/src ./src
+COPY frontend/public ./public
+COPY frontend/tsconfig.json ./
 
 # Build do frontend
 RUN npm run build
