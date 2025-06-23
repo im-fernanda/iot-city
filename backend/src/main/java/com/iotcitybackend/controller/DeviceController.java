@@ -27,7 +27,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/devices")
-@CrossOrigin(origins = "*") // Para permitir CORS com frontend
+@CrossOrigin(origins = "*") 
 @Tag(name = "Dispositivos", description = "API para gerenciamento de dispositivos IoT")
 public class DeviceController {
     
@@ -198,18 +198,37 @@ public class DeviceController {
     
 
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar dispositivo", description = "Remove um dispositivo do sistema")
+    @Operation(summary = "Deletar dispositivo", description = "Remove um dispositivo do sistema e todos os dados de sensores associados")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Dispositivo deletado com sucesso"),
-        @ApiResponse(responseCode = "404", description = "Dispositivo não encontrado")
+        @ApiResponse(responseCode = "404", description = "Dispositivo não encontrado"),
+        @ApiResponse(responseCode = "500", description = "Erro interno do servidor")
     })
-    public ResponseEntity<Void> deleteDevice(
+    public ResponseEntity<?> deleteDevice(
             @Parameter(description = "ID do dispositivo") @PathVariable Long id) {
-        boolean deleted = deviceService.deleteDevice(id);
-        if (deleted) {
-            return ResponseEntity.noContent().build();
+        try {
+            boolean deleted = deviceService.deleteDevice(id);
+            if (deleted) {
+                return ResponseEntity.noContent().build();
+            }
+            return ResponseEntity.notFound().build();
+        } catch (RuntimeException e) {
+            ErrorResponse error = ErrorResponse.of(
+                ErrorCodes.DEVICE_INVALID_DATA,
+                "Erro ao excluir dispositivo",
+                e.getMessage(),
+                "/api/devices/" + id
+            );
+            return ResponseEntity.status(500).body(error);
+        } catch (Exception e) {
+            ErrorResponse error = ErrorResponse.of(
+                ErrorCodes.DEVICE_INVALID_DATA,
+                "Erro interno do servidor",
+                "Ocorreu um erro inesperado ao excluir o dispositivo",
+                "/api/devices/" + id
+            );
+            return ResponseEntity.status(500).body(error);
         }
-        return ResponseEntity.notFound().build();
     }
 
     @GetMapping

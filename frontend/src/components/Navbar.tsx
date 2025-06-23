@@ -13,7 +13,7 @@ const Navbar: React.FC = () => {
     <nav className="navbar">
       <div className="navbar-brand">
         <Link to="/" className="navbar-logo">
-          🌆 IoT City
+          🌆 IoT City by Gilneide Fernanda
         </Link>
       </div>
       

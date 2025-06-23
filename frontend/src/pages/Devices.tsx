@@ -105,8 +105,23 @@ const Devices: React.FC = () => {
     try {
       await api.delete(`/devices/${deviceId}`);
       setDevices(devices.filter(d => d.id !== deviceId));
-    } catch (err) {
-      alert('Falha ao excluir o dispositivo.');
+      // Feedback de sucesso
+      alert(`Dispositivo "${deviceToDelete?.name}" excluído com sucesso!`);
+    } catch (err: any) {
+      // Tratamento de erro mais específico
+      let errorMessage = 'Falha ao excluir o dispositivo.';
+      
+      if (err.response?.data?.message) {
+        errorMessage = err.response.data.message;
+      } else if (err.response?.status === 404) {
+        errorMessage = 'Dispositivo não encontrado.';
+      } else if (err.response?.status === 500) {
+        errorMessage = 'Erro interno do servidor. Tente novamente.';
+      } else if (err.message) {
+        errorMessage = `Erro: ${err.message}`;
+      }
+      
+      alert(`❌ ${errorMessage}`);
     } finally {
       setActionLoading(null);
     }

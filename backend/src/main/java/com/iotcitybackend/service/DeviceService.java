@@ -90,9 +90,18 @@ public class DeviceService {
     
     // Deletar dispositivo
     public boolean deleteDevice(Long id) {
-        if (deviceRepository.existsById(id)) {
-            deviceRepository.deleteById(id);
-            return true;
+        Optional<Device> deviceOpt = deviceRepository.findById(id);
+        if (deviceOpt.isPresent()) {
+            Device device = deviceOpt.get();
+            try {
+                // Com CASCADE DELETE configurado, isso deve excluir o dispositivo e todos os dados de sensores associados
+                deviceRepository.deleteById(id);
+                return true;
+            } catch (Exception e) {
+                // Log do erro para debugging
+                System.err.println("Erro ao excluir dispositivo ID " + id + ": " + e.getMessage());
+                throw new RuntimeException("Não foi possível excluir o dispositivo. Verifique se não há dados de sensores associados.", e);
+            }
         }
         return false;
     }

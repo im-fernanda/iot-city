@@ -18,7 +18,6 @@ FROM maven:3.9.6-eclipse-temurin-17 AS backend-build
 
 WORKDIR /app
 
-# Copiar arquivos de configuração Maven
 COPY backend/pom.xml .
 COPY backend/.mvn .mvn
 COPY backend/mvnw .
@@ -27,7 +26,6 @@ COPY backend/mvnw.cmd .
 # Baixar dependências
 RUN mvn dependency:go-offline -B
 
-# Copiar código fonte do backend
 COPY backend/src ./src
 
 # Compilar e criar JAR
