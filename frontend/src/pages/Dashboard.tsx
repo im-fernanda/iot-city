@@ -39,16 +39,16 @@ const Dashboard: React.FC = () => {
 
   const getDeviceTypeIcon = (type: string) => {
     const icons: { [key: string]: string } = {
-      'TRAFFIC_LIGHT': '🚦',
-      'AIR_QUALITY': '🌬️',
-      'STREET_LIGHT': '💡',
-      'WATER_LEVEL': '💧',
-      'NOISE_SENSOR': '🔊',
-      'WEATHER_SENSOR': '🌤️',
-      'SECURITY_CAMERA': '📹',
-      'PARKING_SENSOR': '🅿️',
-      'WASTE_SENSOR': '🗑️',
-      'SOLAR_PANEL': '☀️'
+      'SEMÁFORO': '🚦',
+      'QUALIDADE_AR': '🌬️',
+      'ILUMINACAO_PUBLICA': '💡',
+      'NIVEL_AGUA': '💧',
+      'RUÍDO': '🔊',
+      'METEOROLÓGICO': '🌤️',
+      'CÂMERA_SEGURANÇA': '📹',
+      'ESTACIONAMENTO': '🅿️',
+      'LIXEIRA': '🗑️',
+      'PAINEL_SOLAR': '☀️'
     };
     return icons[type] || '📱';
   };

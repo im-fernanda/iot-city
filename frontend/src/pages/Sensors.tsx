@@ -130,7 +130,7 @@ const Sensors: React.FC = () => {
 
       const data = response.data.map((item: any) => ({
         ...item,
-        value: item.sensorValue,
+        value: item.value,
         timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
           day: '2-digit',
           month: '2-digit',
