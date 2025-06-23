@@ -86,7 +86,7 @@ const Sensors: React.FC = () => {
     fetchDevicesForType();
   }, [selectedType, allDevices]);
 
-  // Busca dados do gráfico quando um dispositivo é selecionado
+  // Busca dados do gráfico quando um dispositivo ou tipo de sensor muda
   useEffect(() => {
     if (selectedDevice) {
       fetchSensorData();
@@ -94,7 +94,7 @@ const Sensors: React.FC = () => {
       setSensorData([]); // Limpa o gráfico se nenhum dispositivo estiver selecionado
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedDevice]);
+  }, [selectedDevice, selectedType]);
 
   const getUnit = (sensorType: string): string => {
     switch (sensorType) {
@@ -110,23 +110,29 @@ const Sensors: React.FC = () => {
   };
 
   const fetchSensorData = async () => {
-    if (!selectedType || !selectedDevice) return;
+    // A busca agora só precisa de um dispositivo selecionado
+    if (!selectedDevice) return;
 
     try {
       const startDate = new Date();
       startDate.setHours(startDate.getHours() - 24);
       
-      const response = await api.get('/sensor-data', {
-        params: {
-          sensorType: selectedType,
-          deviceId: selectedDevice,
-          start: startDate.toISOString(),
-          end: new Date().toISOString()
-        }
-      });
+      const params: any = {
+        deviceId: selectedDevice,
+        start: startDate.toISOString(),
+        end: new Date().toISOString()
+      };
+
+      // Adiciona o tipo de sensor apenas se ele estiver selecionado
+      if (selectedType) {
+        params.sensorType = selectedType;
+      }
+      
+      const response = await api.get('/sensor-data/search', { params });
 
       const data = response.data.map((item: any) => ({
         ...item,
+        value: item.sensorValue,
         deviceId: item.device.id,
         deviceName: item.device.name
       }));
@@ -137,17 +143,23 @@ const Sensors: React.FC = () => {
     }
   };
 
-  // Prepara os dados para o gráfico
+  // Prepara os dados para o gráfico, agrupando por timestamp
   const chartData = sensorData.reduce((acc, { timestamp, sensorType, value }) => {
-    const time = new Date(timestamp).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const time = new Date(timestamp).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     
-    if (!acc[time]) {
-      acc[time] = { time };
+    let entry = acc.find(item => item.time === time);
+
+    if (!entry) {
+      entry = { time };
+      acc.push(entry);
     }
     
-    acc[time][sensorType] = value;
+    entry[sensorType] = value;
     return acc;
-  }, {} as Record<string, any>);
+  }, [] as any[]);
+
+  // Ordena os dados por tempo para que a linha do gráfico seja desenhada corretamente
+  chartData.sort((a, b) => new Date(a.time).getTime() - new Date(b.time).getTime());
 
   // Agrupa os tipos de sensor presentes nos dados para renderizar múltiplas linhas
   const dataSensorTypes = Array.from(new Set(sensorData.map(d => d.sensorType)));
@@ -156,7 +168,7 @@ const Sensors: React.FC = () => {
     <div className="sensors-page">
       <header className="sensors-header">
         <h1>📈 Sensores IoT</h1>
-        <p>Visualize dados históricos dos sensores</p>
+        <p>Visualize o histórico de dados dos sensores</p>
       </header>
 
       <div className="sensors-filters">
@@ -187,20 +199,22 @@ const Sensors: React.FC = () => {
           <div className="error">{error}</div>
         ) : sensorData.length === 0 ? (
           <div className="no-data">
-            {selectedType || selectedDevice 
+            {selectedDevice 
               ? "Nenhum dado encontrado para o filtro selecionado."
-              : "Por favor, selecione um filtro para exibir o gráfico."
+              : "Por favor, selecione um dispositivo para exibir o gráfico."
             }
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={400}>
-            <LineChart data={sensorData}>
+            <LineChart data={chartData}>
               <CartesianGrid strokeDasharray="3 3" stroke="#ffffff30" />
               <XAxis 
-                dataKey="timestamp" 
-                tickFormatter={(value: string) => new Date(value).toLocaleTimeString()}
+                dataKey="time" 
                 stroke="#ffffff90"
                 tick={{ fill: '#ffffff90' }}
+                angle={-20}
+                textAnchor="end"
+                height={50}
               />
               <YAxis stroke="#ffffff90" tick={{ fill: '#ffffff90' }} />
               <Tooltip 
@@ -209,19 +223,21 @@ const Sensors: React.FC = () => {
                   borderColor: '#4A5568',
                   color: '#E2E8F0'
                 }}
-                labelFormatter={(value: string) => new Date(value).toLocaleString()}
-                formatter={(value: any, name: string) => [`${value} ${getUnit(selectedType)}`, selectedType]}
+                labelFormatter={(value: string) => `Horário: ${value}`}
               />
-              <Legend wrapperStyle={{ color: '#E2E8F0' }} />
-              <Line 
-                type="monotone" 
-                dataKey="value" 
-                name={selectedType}
-                stroke="#38bdf8" 
-                strokeWidth={2}
-                dot={{ r: 4, fill: '#38bdf8' }}
-                activeDot={{ r: 8 }}
-              />
+              <Legend wrapperStyle={{ color: '#E2E8F0', paddingTop: '20px' }} />
+              {dataSensorTypes.map((type, index) => (
+                <Line 
+                  key={type}
+                  type="monotone" 
+                  dataKey={type} 
+                  name={type}
+                  stroke={COLORS[index % COLORS.length]}
+                  strokeWidth={2}
+                  dot={false}
+                  activeDot={{ r: 6 }}
+                />
+              ))}
             </LineChart>
           </ResponsiveContainer>
         )}
