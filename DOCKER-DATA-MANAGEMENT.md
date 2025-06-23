@@ -131,37 +131,3 @@ docker-compose exec db psql -U iotcity_user -d iotcity -c "SELECT pg_size_pretty
 # Estatísticas do banco
 docker-compose exec db psql -U iotcity_user -d iotcity -c "SELECT schemaname, tablename, n_tup_ins, n_tup_upd, n_tup_del FROM pg_stat_user_tables;"
 ```
-
-## 🎯 Boas Práticas
-
-### ✅ **Recomendado**
-- Use `docker-compose down` para parar (não `docker-compose down -v`)
-- Faça backups regulares dos dados importantes
-- Monitore o tamanho do volume
-- Use health checks para verificar status
-
-### ❌ **Evite**
-- Não use `docker-compose down -v` a menos que queira apagar tudo
-- Não modifique dados diretamente no volume
-- Não pare containers abruptamente
-- Não execute múltiplas instâncias simultaneamente
-
-## 🔍 Verificação Rápida
-
-Para verificar se tudo está funcionando:
-
-```bash
-# 1. Status dos containers
-docker-compose ps
-
-# 2. Verificar se banco tem dados
-docker-compose exec db psql -U iotcity_user -d iotcity -c "SELECT COUNT(*) FROM devices;"
-
-# 3. Verificar se API responde
-curl http://localhost:8080/api/devices
-
-# 4. Verificar se frontend carrega
-curl http://localhost:3000
-```
-
-Se todos os comandos retornarem sucesso, seus dados estão sendo persistidos corretamente! 🎉 
