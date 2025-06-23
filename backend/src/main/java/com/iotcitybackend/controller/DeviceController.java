@@ -32,9 +32,9 @@ import java.util.Map;
 public class DeviceController {
     
     private static final Set<String> VALID_DEVICE_TYPES = Set.of(
-        "TRAFFIC_LIGHT", "AIR_QUALITY", "STREET_LIGHT", "WATER_LEVEL", 
-        "NOISE_SENSOR", "WEATHER_SENSOR", "SECURITY_CAMERA", "PARKING_SENSOR", 
-        "WASTE_SENSOR", "SOLAR_PANEL"
+        "SEMÁFORO", "QUALIDADE_AR", "ILUMINACAO_PUBLICA", "NIVEL_AGUA", 
+        "RUÍDO", "METEOROLÓGICO", "CÂMERA_SEGURANÇA", "ESTACIONAMENTO", 
+        "LIXEIRA", "PAINEL_SOLAR"
     );
     
     private final DeviceService deviceService;
@@ -52,7 +52,7 @@ public class DeviceController {
             
             **Campos obrigatórios:**
             - `name`: Nome do dispositivo
-            - `type`: Tipo do dispositivo (TRAFFIC_LIGHT, AIR_QUALITY, etc.)
+            - `type`: Tipo do dispositivo (SEMÁFORO, QUALIDADE_AR, etc.)
             - `location`: Localização do dispositivo
             
             **Campos opcionais:**
@@ -87,7 +87,7 @@ public class DeviceController {
     })
     public ResponseEntity<?> createDevice(
             @Parameter(description = "Nome do dispositivo", example = "Semaforo_Teste_01") @RequestParam String name,
-            @Parameter(description = "Tipo do dispositivo", example = "TRAFFIC_LIGHT") @RequestParam String type,
+            @Parameter(description = "Tipo do dispositivo", example = "SEMÁFORO") @RequestParam String type,
             @Parameter(description = "Localização do dispositivo", example = "Rua Teste, Natal/RN") @RequestParam String location,
             @Parameter(description = "Status ativo/inativo", example = "true") @RequestParam(defaultValue = "true") boolean active,
             @Parameter(description = "Nível de bateria (0-100)", example = "85") @RequestParam(required = false) Integer batteryLevel,

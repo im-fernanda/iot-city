@@ -20,8 +20,8 @@ public class DeviceDTO {
     @Schema(description = "Nome do dispositivo", example = "Semaforo_Petropolis_01", required = true)
     private String name;
     
-    @Schema(description = "Tipo do dispositivo", example = "TRAFFIC_LIGHT", required = true, 
-            allowableValues = {"TRAFFIC_LIGHT", "AIR_QUALITY", "STREET_LIGHT", "WATER_LEVEL", "NOISE_SENSOR", "WEATHER_SENSOR", "SECURITY_CAMERA", "PARKING_SENSOR", "WASTE_SENSOR", "SOLAR_PANEL"})
+    @Schema(description = "Tipo do dispositivo", example = "SEMÁFORO", required = true, 
+            allowableValues = {"SEMÁFORO", "QUALIDADE_AR", "ILUMINACAO_PUBLICA", "NIVEL_AGUA", "RUÍDO", "METEOROLÓGICO", "CÂMERA_SEGURANÇA", "ESTACIONAMENTO", "LIXEIRA", "PAINEL_SOLAR"})
     private String type;
     
     @Schema(description = "Localização do dispositivo", example = "Avenida Hermes da Fonseca, Petrópolis, Natal/RN", required = true)
