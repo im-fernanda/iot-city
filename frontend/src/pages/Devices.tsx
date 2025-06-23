@@ -1,4 +1,5 @@
 import React, { useState, useEffect, FormEvent } from 'react';
+import api from '../services/api';
 import './Devices.css';
 
 interface Device {
@@ -41,12 +42,10 @@ const Devices: React.FC = () => {
   const fetchDevices = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/devices');
-      if (!response.ok) throw new Error('Erro ao carregar dispositivos');
-      const data = await response.json();
-      setDevices(data);
+      const response = await api.get('/devices');
+      setDevices(response.data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro desconhecido');
+      setError('Erro ao carregar dispositivos');
     } finally {
       setLoading(false);
     }
@@ -89,10 +88,8 @@ const Devices: React.FC = () => {
   const handleToggleStatus = async (deviceId: number) => {
     setActionLoading(deviceId);
     try {
-      const res = await fetch(`/api/devices/${deviceId}/toggle`, { method: 'PATCH' });
-      if (!res.ok) throw new Error('Erro ao alternar status');
-      const updatedDevice = await res.json();
-      setDevices(devices.map(d => d.id === deviceId ? updatedDevice : d));
+      const response = await api.patch(`/devices/${deviceId}/toggle`);
+      setDevices(devices.map(d => (d.id === deviceId ? response.data : d)));
     } catch (err) {
       alert('Falha ao alternar o status do dispositivo.');
     } finally {
@@ -103,11 +100,10 @@ const Devices: React.FC = () => {
   const handleDelete = async (deviceId: number) => {
     const deviceToDelete = devices.find(d => d.id === deviceId);
     if (!window.confirm(`Tem certeza que deseja excluir o dispositivo "${deviceToDelete?.name}"?`)) return;
-
+    
     setActionLoading(deviceId);
     try {
-      const res = await fetch(`/api/devices/${deviceId}`, { method: 'DELETE' });
-      if (res.status !== 204) throw new Error('Erro ao excluir');
+      await api.delete(`/devices/${deviceId}`);
       setDevices(devices.filter(d => d.id !== deviceId));
     } catch (err) {
       alert('Falha ao excluir o dispositivo.');
@@ -127,20 +123,11 @@ const Devices: React.FC = () => {
 
     setActionLoading(editingDevice.id);
     try {
-      const res = await fetch(`/api/devices/${editingDevice.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: editingDevice.name,
-          location: editingDevice.location,
-        }),
+      const response = await api.put(`/devices/${editingDevice.id}`, {
+        name: editingDevice.name,
+        location: editingDevice.location,
       });
-
-      if (!res.ok) {
-        throw new Error('Erro ao atualizar dispositivo');
-      }
-      const updatedDevice = await res.json();
-      setDevices(devices.map(d => d.id === editingDevice.id ? updatedDevice : d));
+      setDevices(devices.map(d => d.id === editingDevice.id ? response.data : d));
       setIsModalOpen(false);
       setEditingDevice(null);
     } catch (err) {

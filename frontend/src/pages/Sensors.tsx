@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import api from '../services/api';
 import './Sensors.css';
 
 interface Device {
@@ -46,9 +47,8 @@ const Sensors: React.FC = () => {
 
   const fetchDevices = async () => {
     try {
-      const res = await fetch('/api/devices');
-      const data = await res.json();
-      setDevices(data);
+      const response = await api.get('/devices');
+      setDevices(response.data);
     } catch {
       setDevices([]);
     }
@@ -56,9 +56,8 @@ const Sensors: React.FC = () => {
 
   const fetchSensorTypes = async () => {
     try {
-      const res = await fetch('/api/sensor-data');
-      const data = await res.json();
-      const types = Array.from(new Set(data.map((d: any) => d.sensorType))) as string[];
+      const response = await api.get('/sensor-data');
+      const types = Array.from(new Set(response.data.map((d: any) => d.sensorType))) as string[];
       setSensorTypes(types);
     } catch {
       setSensorTypes([]);
@@ -69,16 +68,18 @@ const Sensors: React.FC = () => {
     setLoading(true);
     setError(null);
     try {
-      let url = '/api/sensor-data';
+      let url = '/sensor-data';
       if (selectedType && selectedDevice) {
-        url = `/api/sensor-data/device/${selectedDevice}`;
+        url = `/sensor-data/device/${selectedDevice}`;
       } else if (selectedType) {
-        url = `/api/sensor-data/type/${selectedType}`;
+        url = `/sensor-data/type/${selectedType}`;
       } else if (selectedDevice) {
-        url = `/api/sensor-data/device/${selectedDevice}`;
+        url = `/sensor-data/device/${selectedDevice}`;
       }
-      const res = await fetch(url);
-      let data = await res.json();
+      
+      const response = await api.get(url);
+      let data = response.data;
+      
       if (selectedType && selectedDevice) {
         data = data.filter((d: any) => d.sensorType === selectedType);
       }
