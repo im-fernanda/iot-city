@@ -100,7 +100,7 @@ iot-city-backend/
 - **PARKING_SENSOR** - Sensores de estacionamento
 - **WASTE_SENSOR** - Sensores de lixeiras
 - **SOLAR_PANEL** - Painéis solares
-- 
+  
 ## 🔧 Comandos Docker Úteis
 
 ```bash
