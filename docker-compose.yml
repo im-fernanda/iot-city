@@ -7,8 +7,8 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "3000:80"  # Frontend via Nginx
-      - "8080:8080"  # Backend direto
+      - "3000:80"
+      - "8080:8080"  
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/iotcity

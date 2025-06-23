@@ -1,16 +1,11 @@
-# Multi-stage build para aplicação completa
 FROM node:18-alpine AS frontend-build
 
-# Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar package.json do frontend
 COPY frontend/package*.json ./
 
-# Instalar dependências do frontend
 RUN npm install
 
-# Copiar arquivos do frontend de forma explícita
 COPY frontend/src ./src
 COPY frontend/public ./public
 COPY frontend/tsconfig.json ./
@@ -21,7 +16,6 @@ RUN npm run build
 # Build do backend
 FROM maven:3.9.6-eclipse-temurin-17 AS backend-build
 
-# Definir diretório de trabalho
 WORKDIR /app
 
 # Copiar arquivos de configuração Maven
@@ -56,13 +50,9 @@ RUN mkdir -p /var/log/nginx /var/lib/nginx /run/nginx && \
     chown -R appuser:appgroup /var/lib/nginx && \
     chown -R appuser:appgroup /run/nginx
 
-# Definir diretório de trabalho
 WORKDIR /app
 
-# Copiar build do frontend
 COPY --from=frontend-build /app/build /usr/share/nginx/html
-
-# Copiar JAR do backend
 COPY --from=backend-build /app/target/*.jar app.jar
 
 # Mudar propriedade dos arquivos para o usuário não-root
@@ -72,7 +62,6 @@ RUN chown -R appuser:appgroup /app && \
 # Mudar para usuário não-root
 USER appuser
 
-# Expor portas
 EXPOSE 80 8080
 
 # Health check
