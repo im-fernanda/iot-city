@@ -64,12 +64,6 @@ Frontend da aplicação IoT City desenvolvido com React e TypeScript, responsáv
 
 ## 🔧 Configuração
 
-### Variáveis de Ambiente
-```env
-REACT_APP_API_URL=http://localhost:8080
-REACT_APP_API_TIMEOUT=5000
-```
-
 ### Estrutura de Arquivos
 ```
 frontend/

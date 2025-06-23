@@ -26,7 +26,6 @@ Backend da aplicação IoT City desenvolvido com Spring Boot, responsável por g
 - **Spring Data JPA** - Persistência de dados
 - **Spring Security** - Segurança da aplicação
 - **PostgreSQL** - Banco de dados
-- **Apache Spark** - Processamento de big data
 - **OpenAPI 3** - Documentação da API
 - **Maven** - Gerenciamento de dependências
 
@@ -44,10 +43,6 @@ Backend da aplicação IoT City desenvolvido com Spring Boot, responsável por g
 - `GET /api/sensor-data` - Listar dados de sensores
 - `GET /api/sensor-data/device/{deviceId}` - Dados por dispositivo
 - `POST /api/sensor-data` - Inserir dados de sensor
-
-### Big Data
-- `GET /api/bigdata/analytics` - Análises de big data
-- `GET /api/bigdata/device-stats` - Estatísticas de dispositivos
 
 ## 🗄️ Banco de Dados
 
@@ -69,7 +64,6 @@ O banco é inicializado automaticamente com dados de teste via `schema.sql` e `d
 ### Profiles Disponíveis
 - `default` - Configuração padrão
 - `docker` - Configuração para containers
-- `bigdata` - Configuração para big data
 
 ### Propriedades Principais
 ```properties
@@ -96,9 +90,9 @@ server.port=8080
 ```java
 - id: Long
 - name: String
-- type: DeviceType
+- type: String (SEMÁFORO, QUALIDADE_AR, etc.)
 - location: String
-- status: DeviceStatus
+- active: boolean
 - lastSeen: LocalDateTime
 - createdAt: LocalDateTime
 ```

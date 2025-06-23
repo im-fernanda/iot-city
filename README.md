@@ -50,7 +50,6 @@ iot-city-backend/
 - **Spring Data JPA** - Persistência de dados
 - **Spring Security** - Segurança
 - **PostgreSQL** - Banco de dados
-- **Apache Spark** - Processamento de big data
 - **OpenAPI/Swagger** - Documentação da API
 
 ### Frontend
@@ -90,16 +89,16 @@ iot-city-backend/
 
 ## 📝 Tipos de Dispositivos Suportados
 
-- **TRAFFIC_LIGHT** - Semáforos inteligentes
-- **AIR_QUALITY** - Sensores de qualidade do ar
-- **STREET_LIGHT** - Iluminação pública
-- **WATER_LEVEL** - Sensores de nível de água
-- **NOISE_SENSOR** - Sensores de ruído
-- **WEATHER_SENSOR** - Sensores meteorológicos
-- **SECURITY_CAMERA** - Câmeras de segurança
-- **PARKING_SENSOR** - Sensores de estacionamento
-- **WASTE_SENSOR** - Sensores de lixeiras
-- **SOLAR_PANEL** - Painéis solares
+- **SEMÁFORO** - Semáforos inteligentes
+- **QUALIDADE_AR** - Sensores de qualidade do ar
+- **ILUMINACAO_PUBLICA** - Iluminação pública
+- **NIVEL_AGUA** - Sensores de nível de água
+- **RUÍDO** - Sensores de ruído
+- **METEOROLÓGICO** - Sensores meteorológicos
+- **CÂMERA_SEGURANÇA** - Câmeras de segurança
+- **ESTACIONAMENTO** - Sensores de estacionamento
+- **LIXEIRA** - Sensores de lixeiras
+- **PAINEL_SOLAR** - Painéis solares
   
 ## 🔧 Comandos Docker Úteis
 
@@ -120,7 +119,6 @@ docker-compose up --build
 docker-compose down -v
 docker system prune -a
 ```
-
 
 ## 🚨 Troubleshooting
 
@@ -154,5 +152,5 @@ docker-compose up --build
 ## 📖 Documentação Adicional
 
 - **[Backend](backend/README.md)** - Documentação detalhada do backend
-- **[Big Data](README-BIGDATA-DEVSECOPS.md)** - Funcionalidades avançadas
+- **[Big Data](backend/README-BIGDATA-DEVSECOPS.md)** - Funcionalidades avançadas
 
