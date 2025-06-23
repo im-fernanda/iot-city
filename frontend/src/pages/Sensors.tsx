@@ -62,8 +62,10 @@ const Sensors: React.FC = () => {
     const fetchDevicesForType = async () => {
       if (selectedType) {
         try {
-          // Busca os dispositivos que têm dados para o tipo de sensor selecionado
-          const response = await api.get(`/sensor-data/devices/${selectedType}`);
+          console.log(`Buscando dispositivos para o tipo: ${selectedType}`);
+          const response = await api.get(`/sensor-data/devices-by-type/${selectedType}`);
+          console.log("Dispositivos recebidos da API:", response.data);
+          
           setDevices(response.data);
 
           // Limpa a seleção de dispositivo se o dispositivo atual não está na nova lista
@@ -75,7 +77,8 @@ const Sensors: React.FC = () => {
           setDevices([]); // Limpa a lista em caso de erro
         }
       } else {
-        // Se nenhum tipo está selecionado, mostra todos os dispositivos
+        // Se nenhum tipo está selecionado, redefina para todos os dispositivos
+        console.log("Nenhum tipo selecionado, mostrando todos os dispositivos.");
         setDevices(allDevices);
       }
     };

@@ -40,8 +40,8 @@ public class BigDataService {
             );
         }
 
-        // Buscar dados do banco
-        List<SensorData> sensorDataList = sensorDataService.getAllSensorData();
+        // Buscar dados do banco usando 
+        List<SensorData> sensorDataList = sensorDataService.findSensorData(null, null, null, null);
         
         // Converter para RDD
         JavaRDD<SensorData> sensorDataRDD = sparkContext.parallelize(sensorDataList);
@@ -86,7 +86,7 @@ public class BigDataService {
             );
         }
 
-        List<SensorData> sensorDataList = sensorDataService.getAllSensorData();
+        List<SensorData> sensorDataList = sensorDataService.findSensorData(null, null, null, null);
         
         // Converter para DataFrame
         Dataset<Row> df = sparkSession.createDataFrame(sensorDataList, SensorData.class);
@@ -133,7 +133,7 @@ public class BigDataService {
             );
         }
 
-        List<SensorData> sensorDataList = sensorDataService.getAllSensorData();
+        List<SensorData> sensorDataList = sensorDataService.findSensorData(null, null, null, null);
         JavaRDD<SensorData> sensorDataRDD = sparkContext.parallelize(sensorDataList);
         
         // Análise por região geográfica
@@ -171,7 +171,7 @@ public class BigDataService {
             );
         }
 
-        List<SensorData> sensorDataList = sensorDataService.getAllSensorData();
+        List<SensorData> sensorDataList = sensorDataService.findSensorData(null, null, null, null);
         JavaRDD<SensorData> sensorDataRDD = sparkContext.parallelize(sensorDataList);
         
         long startTime = System.currentTimeMillis();

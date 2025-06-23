@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/sensor-data")
@@ -180,117 +181,53 @@ public class SensorDataController {
     })
     public ResponseEntity<SensorData> getSensorDataById(
             @Parameter(description = "ID dos dados de sensor") @PathVariable Long id) {
-        SensorData data = sensorDataService.getSensorDataById(id);
-        if (data != null) {
-            return ResponseEntity.ok(data);
-        }
-        return ResponseEntity.notFound().build();
+        return sensorDataService.getSensorDataById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
     
     @GetMapping
-    @Operation(summary = "Buscar dados de sensor", description = "Busca dados de sensor por tipo, dispositivo e período")
-    public ResponseEntity<List<SensorData>> getSensorData(
-            @RequestParam String sensorType,
-            @RequestParam(required = false) Long deviceId,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
+    @Operation(
+        summary = "Busca avançada de dados de sensor", 
+        description = "Busca dados de sensor com filtros opcionais por tipo, dispositivo e período. Se nenhum filtro for fornecido, retorna todos os dados."
+    )
+    public ResponseEntity<List<SensorData>> findSensorData(
+            @Parameter(description = "Tipo do sensor (ex: TEMPERATURE)") @RequestParam(required = false) String sensorType,
+            @Parameter(description = "ID do dispositivo") @RequestParam(required = false) Long deviceId,
+            @Parameter(description = "Data de início do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
+            @Parameter(description = "Data de fim do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         
-        List<SensorData> data = sensorDataService.getSensorData(sensorType, deviceId, start, end);
+        List<SensorData> data = sensorDataService.findSensorData(sensorType, deviceId, start, end);
         return ResponseEntity.ok(data);
     }
     
     @GetMapping("/types")
-    @Operation(summary = "Listar tipos de sensor", description = "Retorna todos os tipos de sensor disponíveis")
+    @Operation(summary = "Listar tipos de sensor únicos", description = "Retorna todos os tipos de sensor distintos disponíveis nos dados")
     public ResponseEntity<List<String>> getSensorTypes() {
         List<String> types = sensorDataService.getSensorTypes();
         return ResponseEntity.ok(types);
     }
     
-    @GetMapping("/devices/{sensorType}")
-    @Operation(summary = "Buscar dispositivos por tipo de sensor", description = "Retorna dispositivos que possuem dados do tipo de sensor especificado")
+    @GetMapping("/devices-by-type/{sensorType}")
+    @Operation(
+        summary = "Buscar dispositivos por tipo de sensor", 
+        description = "Retorna uma lista de dispositivos que possuem dados para o tipo de sensor especificado."
+    )
     public ResponseEntity<List<DeviceDTO>> getDevicesBySensorType(@PathVariable String sensorType) {
-        List<DeviceDTO> devices = sensorDataService.getDevicesBySensorType(sensorType);
+        List<SensorData> data = sensorDataService.findSensorData(sensorType, null, null, null);
+        List<DeviceDTO> devices = data.stream()
+            .map(d -> {
+                Device device = d.getDevice();
+                return DeviceDTO.builder()
+                        .id(device.getId())
+                        .name(device.getName())
+                        .type(device.getType())
+                        .location(device.getLocation())
+                        .build();
+            })
+            .distinct()
+            .collect(Collectors.toList());
         return ResponseEntity.ok(devices);
-    }
-    
-    @GetMapping("/device/{deviceId}")
-    @Operation(summary = "Buscar dados por dispositivo", description = "Retorna todos os dados de um dispositivo específico")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "404", description = "Dispositivo não encontrado")
-    })
-    public ResponseEntity<List<SensorData>> getDataByDevice(
-            @Parameter(description = "ID do dispositivo") @PathVariable Long deviceId) {
-        List<SensorData> data = sensorDataService.getDataByDevice(deviceId);
-        return ResponseEntity.ok(data);
-    }
-    
-    @GetMapping("/type/{sensorType}")
-    @Operation(summary = "Buscar dados por tipo de sensor", description = "Retorna dados de um tipo específico de sensor")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "404", description = "Nenhum dado encontrado para o tipo especificado")
-    })
-    public ResponseEntity<List<SensorData>> getDataBySensorType(
-            @Parameter(description = "Tipo do sensor") @PathVariable String sensorType) {
-        List<SensorData> data = sensorDataService.getDataBySensorType(sensorType);
-        return ResponseEntity.ok(data);
-    }
-    
-    @GetMapping("/device/{deviceId}/type/{sensorType}")
-    @Operation(summary = "Buscar dados por dispositivo e tipo", description = "Retorna dados de um dispositivo específico e tipo de sensor")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "404", description = "Nenhum dado encontrado para os critérios especificados")
-    })
-    public ResponseEntity<List<SensorData>> getDataByDeviceAndType(
-            @Parameter(description = "ID do dispositivo") @PathVariable Long deviceId, 
-            @Parameter(description = "Tipo do sensor") @PathVariable String sensorType) {
-        List<SensorData> data = sensorDataService.getDataByDeviceAndType(deviceId, sensorType);
-        return ResponseEntity.ok(data);
-    }
-    
-    @GetMapping("/period")
-    @Operation(summary = "Buscar dados em período específico", description = "Retorna dados de sensores em um período de tempo específico")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "400", description = "Período inválido")
-    })
-    public ResponseEntity<List<SensorData>> getDataByPeriod(
-            @Parameter(description = "Data de início") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @Parameter(description = "Data de fim") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        List<SensorData> data = sensorDataService.getDataByPeriod(startDate, endDate);
-        return ResponseEntity.ok(data);
-    }
-    
-    @GetMapping("/device/{deviceId}/period")
-    @Operation(summary = "Buscar dados de dispositivo em período", description = "Retorna dados de um dispositivo específico em um período de tempo")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "400", description = "Período inválido"),
-        @ApiResponse(responseCode = "404", description = "Dispositivo não encontrado")
-    })
-    public ResponseEntity<List<SensorData>> getDataByDeviceAndPeriod(
-            @Parameter(description = "ID do dispositivo") @PathVariable Long deviceId,
-            @Parameter(description = "Data de início") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @Parameter(description = "Data de fim") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        List<SensorData> data = sensorDataService.getDataByDeviceAndPeriod(deviceId, startDate, endDate);
-        return ResponseEntity.ok(data);
-    }
-    
-    @GetMapping("/average/{sensorType}")
-    @Operation(summary = "Média de valores por tipo de sensor", description = "Calcula a média dos valores de um tipo de sensor em um período específico")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Média calculada com sucesso"),
-        @ApiResponse(responseCode = "400", description = "Período inválido"),
-        @ApiResponse(responseCode = "404", description = "Nenhum dado encontrado para o tipo especificado")
-    })
-    public ResponseEntity<Double> getAverageValueBySensorType(
-            @Parameter(description = "Tipo do sensor") @PathVariable String sensorType,
-            @Parameter(description = "Data de início") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
-            @Parameter(description = "Data de fim") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
-        Double average = sensorDataService.getAverageValueBySensorTypeAndPeriod(sensorType, startDate, endDate);
-        return ResponseEntity.ok(average);
     }
     
     @GetMapping("/latest/device/{deviceId}")
@@ -301,25 +238,27 @@ public class SensorDataController {
     })
     public ResponseEntity<SensorData> getLatestDataByDevice(
             @Parameter(description = "ID do dispositivo") @PathVariable Long deviceId) {
-        SensorData data = sensorDataService.getLatestDataByDevice(deviceId);
-        if (data != null) {
-            return ResponseEntity.ok(data);
-        }
-        return ResponseEntity.notFound().build();
+        return sensorDataService.getLatestDataByDevice(deviceId)
+            .map(ResponseEntity::ok)
+            .orElse(ResponseEntity.notFound().build());
     }
     
-    @GetMapping("/location")
-    @Operation(summary = "Buscar dados por localização geográfica", description = "Retorna dados de sensores em uma área geográfica específica")
+    @GetMapping("/average")
+    @Operation(summary = "Média de valores por tipo de sensor", description = "Calcula a média dos valores de um tipo de sensor em um período específico")
     @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Dados encontrados"),
-        @ApiResponse(responseCode = "400", description = "Coordenadas inválidas")
+        @ApiResponse(responseCode = "200", description = "Média calculada com sucesso"),
+        @ApiResponse(responseCode = "400", description = "Filtros insuficientes ou período inválido"),
+        @ApiResponse(responseCode = "404", description = "Nenhum dado encontrado para os filtros especificados")
     })
-    public ResponseEntity<List<SensorData>> getDataByLocation(
-            @Parameter(description = "Latitude mínima") @RequestParam Double minLat,
-            @Parameter(description = "Latitude máxima") @RequestParam Double maxLat,
-            @Parameter(description = "Longitude mínima") @RequestParam Double minLng,
-            @Parameter(description = "Longitude máxima") @RequestParam Double maxLng) {
-        List<SensorData> data = sensorDataService.getDataByLocationRange(minLat, maxLat, minLng, maxLng);
-        return ResponseEntity.ok(data);
+    public ResponseEntity<Double> getAverageValue(
+            @Parameter(description = "Tipo do sensor") @RequestParam String sensorType,
+            @Parameter(description = "Data de início") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @Parameter(description = "Data de fim") @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        
+        Double average = sensorDataService.getAverageValueBySensorType(sensorType, startDate, endDate);
+        if (average != null) {
+            return ResponseEntity.ok(average);
+        }
+        return ResponseEntity.notFound().build();
     }
 } 
