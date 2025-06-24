@@ -32,7 +32,7 @@ public class SensorData {
     private Device device;
     
     @Column(nullable = false)
-    @Schema(description = "Tipo do sensor", example = "TEMPERATURE", allowableValues = {"TEMPERATURE", "HUMIDITY", "AIR_QUALITY"})
+    @Schema(description = "Tipo do sensor", example = "TEMPERATURA", allowableValues = {"TEMPERATURA", "UMIDADE", "QUALIDADE_AR", "RUÍDO", "LUZ", "MOVIMENTO"})
     private String sensorType;
     
     @Column(name = "sensor_value", nullable = false)

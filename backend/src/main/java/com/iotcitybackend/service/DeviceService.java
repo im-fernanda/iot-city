@@ -3,7 +3,6 @@ package com.iotcitybackend.service;
 import com.iotcitybackend.model.Device;
 import com.iotcitybackend.repository.DeviceRepository;
 import com.iotcitybackend.dto.DeviceDTO;
-import com.iotcitybackend.dto.UpdateDeviceDTO;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,7 +45,7 @@ public class DeviceService {
         return deviceRepository.findById(id);
     }
     
-    // Atualizar dispositivo
+ 
     public Device updateDevice(Long id, Map<String, Object> updates) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
         if (deviceOpt.isPresent()) {
@@ -88,35 +87,31 @@ public class DeviceService {
         return null;
     }
     
-    // Deletar dispositivo
     public boolean deleteDevice(Long id) {
         Optional<Device> deviceOpt = deviceRepository.findById(id);
         if (deviceOpt.isPresent()) {
             Device device = deviceOpt.get();
             try {
-                // Com CASCADE DELETE configurado, isso deve excluir o dispositivo e todos os dados de sensores associados
+                
                 deviceRepository.deleteById(id);
                 return true;
             } catch (Exception e) {
-                // Log do erro para debugging
+
                 System.err.println("Erro ao excluir dispositivo ID " + id + ": " + e.getMessage());
                 throw new RuntimeException("Não foi possível excluir o dispositivo. Verifique se não há dados de sensores associados.", e);
             }
         }
         return false;
     }
-    
-    // Buscar dispositivos por tipo
+
     public List<Device> getDevicesByType(String type) {
         return deviceRepository.findByType(type);
     }
     
-    // Buscar dispositivos ativos
     public List<Device> getActiveDevices() {
         return deviceRepository.findByActiveTrue();
     }
     
-    // Buscar dispositivos por localização
     public List<Device> getDevicesByLocation(String location) {
         return deviceRepository.findByLocationContainingIgnoreCase(location);
     }

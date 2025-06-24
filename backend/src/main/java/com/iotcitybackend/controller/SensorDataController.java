@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 public class SensorDataController {
     
     private static final Set<String> VALID_SENSOR_TYPES = Set.of(
-        "TEMPERATURE", "HUMIDITY", "AIR_QUALITY", "NOISE", "LIGHT", "MOTION"
+        "TEMPERATURA", "UMIDADE", "QUALIDADE_AR", "RUÍDO", "LUZ", "MOVIMENTO"
     );
     
     private static final Set<String> VALID_UNITS = Set.of(
@@ -192,7 +192,7 @@ public class SensorDataController {
         description = "Busca dados de sensor com filtros opcionais por tipo, dispositivo e período. Se nenhum filtro for fornecido, retorna todos os dados."
     )
     public ResponseEntity<List<SensorData>> findSensorData(
-            @Parameter(description = "Tipo do sensor (ex: TEMPERATURE)") @RequestParam(required = false) String sensorType,
+            @Parameter(description = "Tipo do sensor (ex: TEMPERATURA)") @RequestParam(required = false) String sensorType,
             @Parameter(description = "ID do dispositivo") @RequestParam(required = false) Long deviceId,
             @Parameter(description = "Data de início do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @Parameter(description = "Data de fim do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {

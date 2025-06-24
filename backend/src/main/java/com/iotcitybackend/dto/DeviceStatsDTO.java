@@ -10,7 +10,6 @@ public class DeviceStatsDTO {
     private long activeDevices;
     private long offlineDevices;
     
-    // Construtor padrão
     public DeviceStatsDTO() {}
 
     public DeviceStatsDTO(long totalDevices, long activeDevices, long offlineDevices) {

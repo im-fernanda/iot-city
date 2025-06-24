@@ -6,12 +6,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OfflineTimeoutConfigDTO {
-    private int timeoutMinutes;
-    
-    // Construtor padrão
+    private int timeoutMinutes;   
     public OfflineTimeoutConfigDTO() {}
-    
-    // Construtor com parâmetros
+
     public OfflineTimeoutConfigDTO(int timeoutMinutes) {
         this.timeoutMinutes = timeoutMinutes;
     }

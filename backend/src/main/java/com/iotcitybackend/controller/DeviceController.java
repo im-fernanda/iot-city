@@ -7,7 +7,6 @@ import com.iotcitybackend.dto.DeviceStatsDTO;
 import com.iotcitybackend.dto.OfflineTimeoutConfigDTO;
 import com.iotcitybackend.dto.ErrorResponse;
 import com.iotcitybackend.exception.ErrorCodes;
-import com.iotcitybackend.dto.UpdateDeviceDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
