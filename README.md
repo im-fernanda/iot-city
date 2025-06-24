@@ -1,6 +1,11 @@
 # IoT City - Sistema de Gerenciamento de Dispositivos IoT
 
 Este projeto demonstra um sistema completo de gerenciamento de dispositivos IoT com backend Spring Boot e frontend React, tudo containerizado com Docker. O sistema oferece uma API REST completa para monitoramento, controle e análise de dados simulados de sensores distribuídos pela cidade de Natal/RN e região.
+![image](https://github.com/user-attachments/assets/fe012be9-dba8-48f6-b3c6-6130f490e85c)
+![image](https://github.com/user-attachments/assets/bcb3854b-6d3c-43d6-a882-ffd5d940bfe8)
+![image](https://github.com/user-attachments/assets/901ddd57-60e6-4f75-ad62-131a53948762)
+![image](https://github.com/user-attachments/assets/4bec5991-3d41-46fe-b334-9e08d083a2a0)
+
 
 ## 🐳 Execução com Docker
 
