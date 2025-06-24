@@ -128,16 +128,19 @@ const Sensors: React.FC = () => {
       
       const response = await api.get('/sensor-data', { params });
 
-      const data = response.data.map((item: any) => ({
-        ...item,
-        value: item.value,
-        timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      }));
+      // Ordena pelo timestamp original antes de formatar
+      const data = response.data
+        .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
+        .map((item: any) => ({
+          ...item,
+          value: item.value,
+          timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+          })
+        }));
 
       setSensorData(data);
     } catch (error) {
