@@ -1,37 +1,39 @@
-# IoT City - Sistema de Gerenciamento de Dispositivos IoT
+IoT City – IoT Device Management System
 
-Este projeto demonstra um sistema completo de gerenciamento de dispositivos IoT com backend Spring Boot e frontend React, tudo containerizado com Docker. O sistema oferece uma API REST completa para monitoramento, controle e análise de dados simulados de sensores distribuídos pela cidade de Natal/RN e região.
+This project demonstrates a complete IoT device management system with a Spring Boot backend and a React frontend, all containerized with Docker. The system provides a full REST API for monitoring, controlling, and analyzing simulated sensor data distributed across the city of Natal/RN and surrounding areas.
+
 ![image](https://github.com/user-attachments/assets/fe012be9-dba8-48f6-b3c6-6130f490e85c)
 ![image](https://github.com/user-attachments/assets/bcb3854b-6d3c-43d6-a882-ffd5d940bfe8)
 ![image](https://github.com/user-attachments/assets/901ddd57-60e6-4f75-ad62-131a53948762)
 ![image](https://github.com/user-attachments/assets/4bec5991-3d41-46fe-b334-9e08d083a2a0)
 
 
-## 🐳 Execução com Docker
+## 🐳 Running with Docker
 
-### Pré-requisitos
-- **Docker** 20.10 ou superior
-- **Docker Compose** 2.0 ou superior
+### Prerequisites
 
-### 🚀 Como Executar
+- **Docker** 20.10 our higher
+- **Docker Compose** 2.0 or higher
 
-1. **Clone o repositório**
+### 🚀 How to Run
+
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/im-fernanda/iot-city/
    cd iot-city
    ```
 
-2. **Build e execução**
+2. **Build and run:**
    ```bash
    docker-compose up --build
    ```
 
-3. **Acesse a aplicação**
+3. **Access the application:**
    - **Frontend**: http://localhost:3000
    - **Backend API**: http://localhost:8080
-   - **Documentação Swagger**: http://localhost:8080/swagger-ui.html
+   - **Swagger documentation:**: http://localhost:8080/swagger-ui.html
 
-### 📁 Estrutura do Projeto
+### 📁 Project Structure
 
 ```
 iot-city-backend/
@@ -48,10 +50,10 @@ iot-city-backend/
 └── README.md        # Este arquivo
 ```
 
-## 🛠️ Tecnologias Utilizadas
+## 🛠️ Technologies Used
 
 ### Backend
-- **Spring Boot 3.3.12** - Framework Java
+- **Spring Boot 3.3.12** - Java Framework
 - **Spring Data JPA** - Persistência de dados
 - **Spring Security** - Segurança
 - **PostgreSQL** - Banco de dados
@@ -69,93 +71,96 @@ iot-city-backend/
 - **Docker Compose** - Orquestração
 - **Nginx** - Servidor web para frontend
 
-## 📊 Funcionalidades
+## 📊 Features
 
 ### Dashboard
-- Visão geral dos dispositivos IoT
-- Estatísticas em tempo real
-- Dispositivos por tipo
-- Dispositivos recentes
+- IoT device overview
+- Real-time statistics
+- Devices by type
+- ecent devices
 
-### Gerenciamento de Dispositivos
-- Lista completa de dispositivos
-- Filtros por tipo, status e busca
-- Ações: editar, ativar/desativar, excluir
-- Ordenação por diferentes critérios
+### Device Management
+- Full device list
+- Filters by type, status, and search
+- Actions: edit, enable/disable, delete
+- Sorting by different criteria
 
-### Sensores e Gráficos
-- Visualização de dados históricos
-- Filtros por tipo de sensor e dispositivo
-- Gráficos interativos com Recharts
+### Sensors and Charts
+- Historical data visualization
+- Filters by sensor type and device
+- Interactive charts with Recharts
 
 ### APIs REST
-- **Dispositivos**: `/api/devices`
-- **Dados de Sensores**: `/api/sensor-data`
+- **Devicees**: `/api/devices`
+- **Sensor Data**: `/api/sensor-data`
 
-## 📝 Tipos de Dispositivos Suportados
+## 📝Supported Device Types
 
-- **SEMÁFORO** - Semáforos inteligentes
-- **QUALIDADE_AR** - Sensores de qualidade do ar
-- **ILUMINACAO_PUBLICA** - Iluminação pública
-- **NIVEL_AGUA** - Sensores de nível de água
-- **RUÍDO** - Sensores de ruído
-- **METEOROLÓGICO** - Sensores meteorológicos
-- **CÂMERA_SEGURANÇA** - Câmeras de segurança
-- **ESTACIONAMENTO** - Sensores de estacionamento
-- **LIXEIRA** - Sensores de lixeiras
-- **PAINEL_SOLAR** - Painéis solares
+- **SEMÁFORO** - Smart traffic lights
+- **QUALIDADE_AR** - Air quality sensors
+- **ILUMINACAO_PUBLICA** - Public lighting
+- **NIVEL_AGUA** - Water level sensors
+- **RUÍDO** - Noise sensors
+- **METEOROLÓGICO** - Weather sensors
+- **CÂMERA_SEGURANÇA** - Security cameras
+- **ESTACIONAMENTO** - Parking sensors
+- **LIXEIRA** - Smart waste bin sensors
+- **PAINEL_SOLAR** - Solar panels
   
-## 🔧 Comandos Docker Úteis
+## 🔧 Useful Docker Commands
 
 ```bash
-# Executar em background
+# Run in background
 docker-compose up -d
 
-# Ver logs
+# View logs
 docker-compose logs -f app
 
-# Parar containers
+# Stop containers
 docker-compose down
 
-# Rebuild após mudanças
+# Rebuild after changes
 docker-compose up --build
 
-# Limpar tudo
+# Clean everything
 docker-compose down -v
 docker system prune -a
 ```
 
 ## 🚨 Troubleshooting
 
-### Porta já em uso
+### Port Already in Use
+
+Check processes using the ports:
 ```bash
-# Verificar processos usando as portas
+# 
 netstat -ano | findstr :3000
 netstat -ano | findstr :8080
 
-# Parar processos se necessário
+# Stop processes if needed:
 taskkill /PID <PID> /F
 ```
 
-### Problemas com Docker
+### Docker Issues
+
 ```bash
-# Limpar containers e imagens
+# Clean containers and images
 docker-compose down -v
 docker system prune -a
 
-# Rebuild completo
+# Full rebuild
 docker-compose up --build
 ```
 
-### Banco de dados
-O PostgreSQL é configurado automaticamente com dados de teste. Se precisar resetar:
+### Database
+PostgreSQL is automatically configured with test data. To reset:
 ```bash
 docker-compose down -v
 docker-compose up --build
 ```
 
-## 📖 Documentação Adicional
+## 📖 Additional Documentation
 
-- **[Backend](backend/README.md)** - Documentação detalhada do backend
-- **[Big Data](backend/README-BIGDATA-DEVSECOPS.md)** - Funcionalidades avançadas
+- **[Backend](backend/README.md)** - Detailed backend documentation
+- **[Big Data](backend/README-BIGDATA-DEVSECOPS.md)** - Advanced features
 
