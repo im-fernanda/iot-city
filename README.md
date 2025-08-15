@@ -1,4 +1,4 @@
-IoT City – IoT Device Management System
+# IoT City – IoT Device Management System
 
 This project demonstrates a complete IoT device management system with a Spring Boot backend and a React frontend, all containerized with Docker. The system provides a full REST API for monitoring, controlling, and analyzing simulated sensor data distributed across the city of Natal/RN and surrounding areas.
 
