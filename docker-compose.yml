@@ -1,7 +1,4 @@
-version: '3.8'
-
 services:
-  # Aplicação completa (Frontend + Backend)
   app:
     build:
       context: .
@@ -15,14 +12,14 @@ services:
       - SPRING_DATASOURCE_USERNAME=iotcity_user
       - SPRING_DATASOURCE_PASSWORD=iotcity_pass
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - iot-city-network
     restart: unless-stopped
 
-  # PostgreSQL Database
   db:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     environment:
       - POSTGRES_DB=iotcity
       - POSTGRES_USER=iotcity_user
