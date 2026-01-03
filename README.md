@@ -2,10 +2,10 @@
 
 Sistema completo de gerenciamento de dispositivos IoT com backend Spring Boot e frontend React moderno, containerizado com Docker.
 
-<img width="1893" height="944" alt="1" src="https://github.com/user-attachments/assets/5110358f-1780-4663-bfd5-b22441074689" />
-<img width="1886" height="941" alt="2" src="https://github.com/user-attachments/assets/982722c5-2042-42d7-87f0-7be257bae0cd" />
-<img width="1891" height="942" alt="3" src="https://github.com/user-attachments/assets/e5a3693f-2da2-4cf4-b18e-15db3ca82bb3" />
-<img width="1906" height="938" alt="4" src="https://github.com/user-attachments/assets/c32fa4c1-646a-49c3-a6f7-42e3f10cbb51" />
+<img width="1856" height="924" alt="image" src="https://github.com/user-attachments/assets/094bd0ea-cd65-45b1-a5d0-d6b0e5d157ab" />
+<img width="1855" height="922" alt="image" src="https://github.com/user-attachments/assets/53cebeff-d5e2-4468-b1d4-4bcff8a75648" />
+<img width="1852" height="929" alt="image" src="https://github.com/user-attachments/assets/4849d1e1-f8d5-42f8-b1bf-7b0cb42ec096" />
+<img width="1871" height="927" alt="image" src="https://github.com/user-attachments/assets/71a749f4-5c1b-4b64-9641-74a724d76030" />
 
 ## 💡 Conceitos e Aprendizados
 Este projeto consolidou meus conhecimentos em arquitetura de software e desenvolvimento full-stack. No backend, utilizei Clean Architecture, organizando o código em camadas bem definidas para garantir separação de responsabilidades e facilitar a manutenção. Apliquei os princípios SOLID, com uso adequado de interfaces, abstrações e inversão de dependências.
