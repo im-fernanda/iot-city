@@ -60,13 +60,13 @@ BEGIN
     INSERT INTO sensor_data (device_id, sensor_type, sensor_value, unit, timestamp, latitude, longitude)
     SELECT
         d.id,
-        'INTENSIDADE_LUZ',
+        'LUZ',
         CASE
             WHEN (EXTRACT(HOUR FROM (NOW() - (i * interval '10 minute')))) BETWEEN 6 AND 18 
             THEN 800 + random() * 200 -- Dia
             ELSE 50 + random() * 50 -- Noite
         END,
-        'lux',
+        'LUX',
         NOW() - (i * interval '10 minute'),
         p_latitude,
         p_longitude
@@ -156,42 +156,38 @@ INSERT INTO devices (name, type, location, active, last_seen, battery_level, sig
 -- =============================================================================
 
 -- Dados meteorológicos para Ponta Negra 
-SELECT generate_historical_data('Temp_PontaNegra_01', 'TEMPERATURA', 24, 8, '°C', -5.7945, -35.2090, 24, 30);
-SELECT generate_historical_data('Temp_PontaNegra_01', 'UMIDADE', 70, 25, '%', -5.7945, -35.2090, 24, 30);
-SELECT generate_historical_data('Temp_PontaNegra_01', 'PRESSAO_AR', 1008, 5, 'hPa', -5.7945, -35.2090, 24, 30);
-SELECT generate_historical_data('Temp_PontaNegra_01', 'VELOCIDADE_VENTO', 5, 20, 'km/h', -5.7945, -35.2090, 24, 30);
+SELECT generate_historical_data('Temp_PontaNegra_01', 'TEMPERATURA', 24, 8, 'CELSIUS', -5.7945, -35.2090, 24, 30);
+SELECT generate_historical_data('Temp_PontaNegra_01', 'UMIDADE', 70, 25, 'PERCENTAGE', -5.7945, -35.2090, 24, 30);
 
 -- Dados meteorológicos 
-SELECT generate_historical_data('Temp_Centro_02', 'TEMPERATURA', 26, 6, '°C', -5.7967, -35.2078, 24, 30);
-SELECT generate_historical_data('Temp_Centro_02', 'UMIDADE', 60, 40, '%', -5.7967, -35.2078, 24, 30);
-SELECT generate_historical_data('Temp_Centro_02', 'PRESSAO_AR', 1010, 3, 'hPa', -5.7967, -35.2078, 24, 30);
-SELECT generate_historical_data('Temp_Petropolis_03', 'TEMPERATURA', 25, 7, '°C', -5.7900, -35.2075, 24, 30);
-SELECT generate_historical_data('Temp_Parnamirim_06', 'TEMPERATURA', 27, 5, '°C', -5.9200, -35.2600, 24, 30);
-SELECT generate_historical_data('Temp_SaoGoncalo_03', 'TEMPERATURA', 28, 6, '°C', -5.7900, -35.2075, 24, 30);
+SELECT generate_historical_data('Temp_Centro_02', 'TEMPERATURA', 26, 6, 'CELSIUS', -5.7967, -35.2078, 24, 30);
+SELECT generate_historical_data('Temp_Centro_02', 'UMIDADE', 60, 40, 'PERCENTAGE', -5.7967, -35.2078, 24, 30);
+SELECT generate_historical_data('Temp_Petropolis_03', 'TEMPERATURA', 25, 7, 'CELSIUS', -5.7900, -35.2075, 24, 30);
+SELECT generate_historical_data('Temp_Parnamirim_06', 'TEMPERATURA', 27, 5, 'CELSIUS', -5.9200, -35.2600, 24, 30);
+SELECT generate_historical_data('Temp_SaoGoncalo_03', 'TEMPERATURA', 28, 6, 'CELSIUS', -5.7900, -35.2075, 24, 30);
 
 -- Dados de qualidade do ar
-SELECT generate_historical_data('Ar_PraiaMeio_01', 'PM25', 10, 50, 'μg/m³', -5.7945, -35.2090, 24, 30);
-SELECT generate_historical_data('Ar_PontaNegra_02', 'QUALIDADE_AR', 15, 40, 'AQI', -5.8810, -35.1650, 24, 30);
-SELECT generate_historical_data('Ar_Centro_03', 'PM10', 20, 60, 'μg/m³', -5.7967, -35.2078, 24, 30);
-SELECT generate_historical_data('Ar_Parnamirim_02', 'CO2', 400, 200, 'ppm', -5.9200, -35.2600, 24, 30);
+SELECT generate_historical_data('Ar_PraiaMeio_01', 'QUALIDADE_AR', 10, 50, 'PPM', -5.7945, -35.2090, 24, 30);
+SELECT generate_historical_data('Ar_PontaNegra_02', 'QUALIDADE_AR', 15, 40, 'PPM', -5.8810, -35.1650, 24, 30);
+SELECT generate_historical_data('Ar_Centro_03', 'QUALIDADE_AR', 20, 60, 'PPM', -5.7967, -35.2078, 24, 30);
+SELECT generate_historical_data('Ar_Parnamirim_02', 'QUALIDADE_AR', 400, 200, 'PPM', -5.9200, -35.2600, 24, 30);
 
--- Dados de tráfego para semáforos
-SELECT generate_historical_data('Semaforo_Tirol_02', 'FLUXO_TRAFEGO', 20, 80, 'vehicles/hour', -5.8119, -35.2067, 24, 15);
-SELECT generate_historical_data('Semaforo_Petropolis_01', 'FLUXO_TRAFEGO', 15, 60, 'vehicles/hour', -5.7900, -35.2075, 24, 15);
-SELECT generate_historical_data('Semaforo_CidadeAlta_03', 'FLUXO_TRAFEGO', 10, 40, 'vehicles/hour', -5.7967, -35.2078, 24, 15);
+-- Dados de movimento para semáforos (detecção de tráfego)
+SELECT generate_historical_data('Semaforo_Tirol_02', 'MOVIMENTO', 20, 80, 'BOOLEAN', -5.8119, -35.2067, 24, 15);
+SELECT generate_historical_data('Semaforo_Petropolis_01', 'MOVIMENTO', 15, 60, 'BOOLEAN', -5.7900, -35.2075, 24, 15);
+SELECT generate_historical_data('Semaforo_CidadeAlta_03', 'MOVIMENTO', 10, 40, 'BOOLEAN', -5.7967, -35.2078, 24, 15);
 
 -- Dados de ruído
-SELECT generate_historical_data('Ruido_PontaNegra_01', 'NIVEL_RUIDO', 50, 50, 'dB', -5.8825, -35.1633, 24, 20);
-SELECT generate_historical_data('Ruido_Centro_02', 'NIVEL_RUIDO', 60, 40, 'dB', -5.7967, -35.2078, 24, 20);
-SELECT generate_historical_data('Ruido_Petropolis_03', 'NIVEL_RUIDO', 55, 45, 'dB', -5.7900, -35.2075, 24, 20);
+SELECT generate_historical_data('Ruido_PontaNegra_01', 'RUÍDO', 50, 50, 'DB', -5.8825, -35.1633, 24, 20);
+SELECT generate_historical_data('Ruido_Centro_02', 'RUÍDO', 60, 40, 'DB', -5.7967, -35.2078, 24, 20);
+SELECT generate_historical_data('Ruido_Petropolis_03', 'RUÍDO', 55, 45, 'DB', -5.7900, -35.2075, 24, 20);
 
 -- Dados de luminosidade (com variação dia/noite)
 SELECT generate_light_data('Luz_Petropolis_01', -5.7900, -35.2075, 24);
 SELECT generate_light_data('Luz_Tirol_02', -5.8119, -35.2067, 24);
 SELECT generate_light_data('Luz_CidadeAlta_03', -5.7967, -35.2078, 24);
 
--- Dados de água
-SELECT generate_historical_data('Agua_CapimMacio_01', 'PRESSAO_AGUA', 30, 20, 'PSI', -5.8500, -35.1950, 24, 60);
-SELECT generate_historical_data('Agua_Petropolis_02', 'NIVEL_AGUA', 50, 30, 'cm', -5.7900, -35.2075, 24, 60);
-SELECT generate_historical_data('Agua_Tirol_03', 'VAZAO_AGUA', 10, 15, 'L/min', -5.8119, -35.2067, 24, 60);
+-- Dados de água (usando tipos válidos - removidos tipos inválidos)
+-- Nota: PRESSAO_AGUA, NIVEL_AGUA e VAZAO_AGUA não são tipos de sensores válidos no backend
+-- Se necessário, adicione novos tipos de sensores no backend ou use tipos existentes
 

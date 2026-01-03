@@ -92,19 +92,29 @@ const Sensors: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDevice, selectedType]);
 
+  // Tipos de sensores válidos no backend: TEMPERATURA, UMIDADE, QUALIDADE_AR, RUÍDO, LUZ, MOVIMENTO
   const getSensorIcon = (sensorType: string) => {
     switch (sensorType?.toUpperCase()) {
-      case 'TEMPERATURE':
+      case 'TEMPERATURA':
         return <Thermometer className="w-6 h-6 text-orange-400" />;
-      case 'HUMIDITY':
+      case 'UMIDADE':
         return <Droplets className="w-6 h-6 text-blue-400" />;
-      case 'PM25':
+      case 'QUALIDADE_AR':
         return <Wind className="w-6 h-6 text-purple-400" />;
+      case 'RUÍDO':
+        return <Activity className="w-6 h-6 text-red-400" />;
+      case 'LUZ':
+      case 'INTENSIDADE_LUZ': // Pode aparecer em dados antigos do data.sql
+        return <Activity className="w-6 h-6 text-yellow-400" />;
+      case 'MOVIMENTO':
+        return <Activity className="w-6 h-6 text-primary-400" />;
       default:
         return <Activity className="w-6 h-6 text-primary-400" />;
     }
   };
 
+  // Tipos de sensores válidos no backend: TEMPERATURA, UMIDADE, QUALIDADE_AR, RUÍDO, LUZ, MOVIMENTO
+  // Unidades válidas: CELSIUS, FAHRENHEIT, PERCENTAGE, PPM, DB, LUX, BOOLEAN
   const getUnit = (sensorType: string, unitFromBackend?: string): string => {
     // Se o backend forneceu uma unidade, use-a (mas formate se necessário)
     if (unitFromBackend) {
@@ -121,26 +131,20 @@ const Sensors: React.FC = () => {
       return unitMap[unitFromBackend.toUpperCase()] || unitFromBackend;
     }
     
-    // Fallback para tipos de sensores conhecidos
+    // Fallback para tipos de sensores conhecidos (usando nomes oficiais do backend)
     switch (sensorType?.toUpperCase()) {
       case 'TEMPERATURA':
-      case 'TEMPERATURE':
         return '°C';
       case 'UMIDADE':
-      case 'HUMIDITY':
         return '%';
       case 'QUALIDADE_AR':
-      case 'PM25':
         return 'μg/m³';
       case 'RUÍDO':
-      case 'NOISE':
         return 'dB';
       case 'LUZ':
-      case 'LIGHT':
-      case 'INTENSIDADE_LUZ':
+      case 'INTENSIDADE_LUZ': // Pode aparecer em dados antigos do data.sql
         return 'lux';
       case 'MOVIMENTO':
-      case 'MOTION':
         return '';
       default:
         return '';
@@ -167,19 +171,26 @@ const Sensors: React.FC = () => {
 
       const data = response.data
         .sort((a: any, b: any) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime())
-        .map((item: any) => ({
-          ...item,
-          // value vem como string formatada do backend, mas precisamos do número para o gráfico
-          valueForChart: parseFloat(item.value), // Para o gráfico (número)
-          value: item.value, // Mantém string formatada para exibição
-          unit: item.unit || '', // Mantém a unidade do backend
-          timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
-            day: '2-digit',
-            month: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit'
-          })
-        }));
+        .map((item: any) => {
+          const numericValue = parseFloat(item.value);
+          // Garante que o valor numérico é válido
+          const valueForChart = isNaN(numericValue) ? 0 : numericValue;
+          
+          return {
+            ...item,
+            // value vem como string formatada do backend, mas precisamos do número para o gráfico
+            valueForChart: valueForChart, // Para o gráfico (número)
+            value: item.value, // Mantém string formatada para exibição
+            unit: item.unit || '', // Mantém a unidade do backend
+            timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
+              day: '2-digit',
+              month: '2-digit',
+              hour: '2-digit',
+              minute: '2-digit'
+            })
+          };
+        })
+        .filter((item: any) => !isNaN(item.valueForChart)); // Remove valores inválidos
 
       setSensorData(data);
     } catch (error) {
@@ -192,8 +203,13 @@ const Sensors: React.FC = () => {
   const selectedDeviceName = devices.find(d => d.id === Number(selectedDevice))?.name;
   
   // Obtém a unidade do primeiro item de dados (se disponível) ou usa o tipo de sensor
-  const currentUnit = sensorData.length > 0 && sensorData[0]?.unit 
-    ? getUnit(selectedType, sensorData[0].unit)
+  // Verifica se a unidade existe e não está vazia
+  const firstDataUnit = sensorData.length > 0 && sensorData[0]?.unit && sensorData[0].unit.trim() !== ''
+    ? sensorData[0].unit
+    : undefined;
+  
+  const currentUnit = firstDataUnit 
+    ? getUnit(selectedType, firstDataUnit)
     : getUnit(selectedType);
 
   // Calculate stats (valores já vêm formatados do backend como string)
@@ -379,7 +395,10 @@ const Sensors: React.FC = () => {
                 <YAxis 
                   stroke="rgba(255,255,255,0.6)" 
                   tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
-                  tickFormatter={(value) => `${value.toFixed(2)} ${currentUnit}`}
+                  tickFormatter={(value) => {
+                    const formatted = value.toFixed(2);
+                    return currentUnit ? `${formatted} ${currentUnit}` : formatted;
+                  }}
                   label={{ 
                     value: currentUnit || 'Valor', 
                     angle: -90, 
@@ -403,7 +422,9 @@ const Sensors: React.FC = () => {
                   formatter={(value: number, name: string, props: any) => {
                     // Usa o valor formatado do payload (que vem do backend)
                     const formattedValue = props.payload?.value || value.toFixed(2);
-                    return [`${formattedValue} ${currentUnit}`, `${selectedType} (${currentUnit})`];
+                    const unitDisplay = currentUnit ? ` ${currentUnit}` : '';
+                    const legendName = currentUnit ? `${selectedType} (${currentUnit})` : selectedType;
+                    return [`${formattedValue}${unitDisplay}`, legendName];
                   }}
                 />
                 <Legend 
@@ -416,7 +437,7 @@ const Sensors: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="valueForChart"
-                  name={currentUnit ? `${selectedType} (${currentUnit})` : selectedType}
+                  name={currentUnit && currentUnit.trim() !== '' ? `${selectedType} (${currentUnit})` : selectedType}
                   stroke="#38bdf8"
                   strokeWidth={3}
                   dot={{ fill: '#38bdf8', strokeWidth: 2, r: 4 }}

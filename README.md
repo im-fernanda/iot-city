@@ -90,6 +90,10 @@ npm start
 
 SEMÁFORO • QUALIDADE_AR • ILUMINACAO_PUBLICA • NIVEL_AGUA • RUÍDO • METEOROLÓGICO • CÂMERA_SEGURANÇA • ESTACIONAMENTO • LIXEIRA • PAINEL_SOLAR
 
+## 📊 Tipos de Sensores
+
+TEMPERATURA • UMIDADE • QUALIDADE_AR • RUÍDO • LUZ • MOVIMENTO
+
 ## 🔧 Comandos Úteis
 
 ```bash
