@@ -177,7 +177,7 @@ const Sensors: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl md:text-5xl font-bold mb-3 gradient-text">
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
           Sensores IoT
         </h1>
         <p className="text-white/70 text-lg">

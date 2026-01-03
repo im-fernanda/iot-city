@@ -28,10 +28,10 @@ export const Button: React.FC<ButtonProps> = ({
   const baseClasses = "inline-flex items-center justify-center gap-2 font-semibold rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed";
   
   const variants = {
-    primary: "bg-gradient-to-r from-primary-500 to-primary-600 hover:shadow-neon text-white",
-    secondary: "bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 text-white",
-    danger: "bg-gradient-to-r from-red-500 to-red-600 hover:shadow-[0_0_20px_rgba(239,68,68,0.5)] text-white",
-    success: "bg-gradient-to-r from-green-500 to-green-600 hover:shadow-[0_0_20px_rgba(34,197,94,0.5)] text-white",
+    primary: "bg-primary-600 hover:bg-primary-500 text-white shadow-md hover:shadow-lg",
+    secondary: "bg-dark-800 hover:bg-dark-700 border border-white/20 text-white",
+    danger: "bg-red-600 hover:bg-red-500 text-white shadow-md hover:shadow-lg",
+    success: "bg-green-600 hover:bg-green-500 text-white shadow-md hover:shadow-lg",
     ghost: "hover:bg-white/10 text-white",
   };
   

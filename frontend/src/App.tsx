@@ -8,14 +8,7 @@ import Sensors from './pages/Sensors';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gradient-to-br from-dark-950 via-primary-950 to-accent-950 text-white">
-        {/* Animated Background Gradient */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-0 -left-4 w-96 h-96 bg-primary-500/30 rounded-full mix-blend-multiply filter blur-3xl animate-blob"></div>
-          <div className="absolute top-0 -right-4 w-96 h-96 bg-accent-500/30 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-2000"></div>
-          <div className="absolute -bottom-8 left-20 w-96 h-96 bg-purple-500/30 rounded-full mix-blend-multiply filter blur-3xl animate-blob animation-delay-4000"></div>
-        </div>
-
+      <div className="min-h-screen bg-dark-900 text-white">
         {/* Content */}
         <div className="relative z-10">
           <Navbar />

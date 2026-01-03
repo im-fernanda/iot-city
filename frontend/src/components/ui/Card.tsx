@@ -14,8 +14,8 @@ export const Card: React.FC<CardProps> = ({
   hover = false,
   onClick 
 }) => {
-  const baseClasses = "bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 shadow-glass p-6";
-  const hoverClasses = hover ? "hover:bg-white/15 hover:shadow-glass-lg cursor-pointer" : "";
+  const baseClasses = "bg-dark-800/80 backdrop-blur-sm rounded-xl border border-white/10 shadow-lg p-6";
+  const hoverClasses = hover ? "hover:bg-dark-800 hover:border-white/20 hover:shadow-xl cursor-pointer" : "";
   
   if (hover || onClick) {
     return (
@@ -85,4 +85,5 @@ export const StatCard: React.FC<StatCardProps> = ({
     </motion.div>
   );
 };
+
 
