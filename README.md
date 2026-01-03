@@ -2,8 +2,12 @@
 
 Sistema completo de gerenciamento de dispositivos IoT com backend Spring Boot e frontend React moderno, containerizado com Docker.
 
-## 💡 Conceitos e Aprendizados
+<img width="1893" height="944" alt="1" src="https://github.com/user-attachments/assets/5110358f-1780-4663-bfd5-b22441074689" />
+<img width="1886" height="941" alt="2" src="https://github.com/user-attachments/assets/982722c5-2042-42d7-87f0-7be257bae0cd" />
+<img width="1891" height="942" alt="3" src="https://github.com/user-attachments/assets/e5a3693f-2da2-4cf4-b18e-15db3ca82bb3" />
+<img width="1906" height="938" alt="4" src="https://github.com/user-attachments/assets/c32fa4c1-646a-49c3-a6f7-42e3f10cbb51" />
 
+## 💡 Conceitos e Aprendizados
 Este projeto consolidou meus conhecimentos em arquitetura de software e desenvolvimento full-stack. No backend, utilizei Clean Architecture, organizando o código em camadas bem definidas para garantir separação de responsabilidades e facilitar a manutenção. Apliquei os princípios SOLID, com uso adequado de interfaces, abstrações e inversão de dependências.
 
 Trabalhei com Spring Boot 3, explorando IoC e Injeção de Dependências, além de Spring Data JPA para persistência, com repositories customizados e queries otimizadas. Implementei tratamento centralizado de exceções, validações com Bean Validation, controle transacional, documentação de APIs com OpenAPI/Swagger e configuração de CORS.
