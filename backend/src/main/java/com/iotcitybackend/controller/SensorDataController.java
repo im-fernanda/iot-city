@@ -7,6 +7,7 @@ import com.iotcitybackend.model.Device;
 import com.iotcitybackend.exception.ErrorCodes;
 import com.iotcitybackend.dto.ErrorResponse;
 import com.iotcitybackend.dto.DeviceDTO;
+import com.iotcitybackend.dto.SensorDataDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -45,6 +46,36 @@ public class SensorDataController {
     public SensorDataController(SensorDataService sensorDataService, DeviceService deviceService) {
         this.sensorDataService = sensorDataService;
         this.deviceService = deviceService;
+    }
+    
+    /**
+     * Converte SensorData para SensorDataDTO formatando o valor com 2 casas decimais
+     */
+    private SensorDataDTO toDTO(SensorData sensorData) {
+        Device device = sensorData.getDevice();
+        DeviceDTO deviceDTO = device != null ? DeviceDTO.builder()
+                .id(device.getId())
+                .name(device.getName())
+                .type(device.getType())
+                .location(device.getLocation())
+                .active(device.isActive())
+                .lastSeen(device.getLastSeen())
+                .batteryLevel(device.getBatteryLevel())
+                .signalStrength(device.getSignalStrength())
+                .createdAt(device.getCreatedAt())
+                .updatedAt(device.getUpdatedAt())
+                .build() : null;
+        
+        return SensorDataDTO.builder()
+                .id(sensorData.getId())
+                .device(deviceDTO)
+                .sensorType(sensorData.getSensorType())
+                .value(String.format("%.2f", sensorData.getValue()))
+                .unit(sensorData.getUnit())
+                .timestamp(sensorData.getTimestamp())
+                .latitude(sensorData.getLatitude())
+                .longitude(sensorData.getLongitude())
+                .build();
     }
     
     @PostMapping
@@ -189,16 +220,19 @@ public class SensorDataController {
     @GetMapping
     @Operation(
         summary = "Busca avançada de dados de sensor", 
-        description = "Busca dados de sensor com filtros opcionais por tipo, dispositivo e período. Se nenhum filtro for fornecido, retorna todos os dados."
+        description = "Busca dados de sensor com filtros opcionais por tipo, dispositivo e período. Valores formatados com 2 casas decimais."
     )
-    public ResponseEntity<List<SensorData>> findSensorData(
+    public ResponseEntity<List<SensorDataDTO>> findSensorData(
             @Parameter(description = "Tipo do sensor (ex: TEMPERATURA)") @RequestParam(required = false) String sensorType,
             @Parameter(description = "ID do dispositivo") @RequestParam(required = false) Long deviceId,
             @Parameter(description = "Data de início do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime start,
             @Parameter(description = "Data de fim do período (ISO 8601)") @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime end) {
         
         List<SensorData> data = sensorDataService.findSensorData(sensorType, deviceId, start, end);
-        return ResponseEntity.ok(data);
+        List<SensorDataDTO> dtos = data.stream()
+                .map(this::toDTO)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(dtos);
     }
     
     @GetMapping("/types")
