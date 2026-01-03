@@ -105,14 +105,43 @@ const Sensors: React.FC = () => {
     }
   };
 
-  const getUnit = (sensorType: string): string => {
-    switch (sensorType) {
+  const getUnit = (sensorType: string, unitFromBackend?: string): string => {
+    // Se o backend forneceu uma unidade, use-a (mas formate se necessário)
+    if (unitFromBackend) {
+      const unitMap: { [key: string]: string } = {
+        'CELSIUS': '°C',
+        'FAHRENHEIT': '°F',
+        'PERCENTAGE': '%',
+        'PPM': 'ppm',
+        'AQI': 'AQI',
+        'DB': 'dB',
+        'LUX': 'lux',
+        'BOOLEAN': ''
+      };
+      return unitMap[unitFromBackend.toUpperCase()] || unitFromBackend;
+    }
+    
+    // Fallback para tipos de sensores conhecidos
+    switch (sensorType?.toUpperCase()) {
+      case 'TEMPERATURA':
       case 'TEMPERATURE':
         return '°C';
+      case 'UMIDADE':
       case 'HUMIDITY':
         return '%';
+      case 'QUALIDADE_AR':
       case 'PM25':
         return 'μg/m³';
+      case 'RUÍDO':
+      case 'NOISE':
+        return 'dB';
+      case 'LUZ':
+      case 'LIGHT':
+      case 'INTENSIDADE_LUZ':
+        return 'lux';
+      case 'MOVIMENTO':
+      case 'MOTION':
+        return '';
       default:
         return '';
     }
@@ -143,6 +172,7 @@ const Sensors: React.FC = () => {
           // value vem como string formatada do backend, mas precisamos do número para o gráfico
           valueForChart: parseFloat(item.value), // Para o gráfico (número)
           value: item.value, // Mantém string formatada para exibição
+          unit: item.unit || '', // Mantém a unidade do backend
           timestamp: new Date(item.timestamp).toLocaleString('pt-BR', {
             day: '2-digit',
             month: '2-digit',
@@ -160,6 +190,11 @@ const Sensors: React.FC = () => {
   };
 
   const selectedDeviceName = devices.find(d => d.id === Number(selectedDevice))?.name;
+  
+  // Obtém a unidade do primeiro item de dados (se disponível) ou usa o tipo de sensor
+  const currentUnit = sensorData.length > 0 && sensorData[0]?.unit 
+    ? getUnit(selectedType, sensorData[0].unit)
+    : getUnit(selectedType);
 
   // Calculate stats (valores já vêm formatados do backend como string)
   const stats = sensorData.length > 0 ? {
@@ -177,7 +212,7 @@ const Sensors: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center"
       >
-        <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 gradient-text">
           Sensores IoT
         </h1>
         <p className="text-white/70 text-lg">
@@ -239,7 +274,7 @@ const Sensors: React.FC = () => {
               <span className="text-sm text-white/70">Atual</span>
             </div>
             <p className="text-2xl font-bold text-white">
-              {stats.current} {getUnit(selectedType)}
+              {stats.current} {currentUnit}
             </p>
           </div>
           <div className="glass-card p-4">
@@ -248,7 +283,7 @@ const Sensors: React.FC = () => {
               <span className="text-sm text-white/70">Média</span>
             </div>
             <p className="text-2xl font-bold text-white">
-              {stats.average} {getUnit(selectedType)}
+              {stats.average} {currentUnit}
             </p>
           </div>
           <div className="glass-card p-4">
@@ -257,7 +292,7 @@ const Sensors: React.FC = () => {
               <span className="text-sm text-white/70">Máximo</span>
             </div>
             <p className="text-2xl font-bold text-white">
-              {stats.max} {getUnit(selectedType)}
+              {stats.max} {currentUnit}
             </p>
           </div>
           <div className="glass-card p-4">
@@ -266,7 +301,7 @@ const Sensors: React.FC = () => {
               <span className="text-sm text-white/70">Mínimo</span>
             </div>
             <p className="text-2xl font-bold text-white">
-              {stats.min} {getUnit(selectedType)}
+              {stats.min} {currentUnit}
             </p>
           </div>
         </motion.div>
@@ -283,6 +318,11 @@ const Sensors: React.FC = () => {
           <h2 className="text-2xl font-bold text-white flex items-center gap-2">
             <Calendar className="w-6 h-6 text-primary-400" />
             Histórico - Últimas 24 horas
+            {currentUnit && (
+              <span className="text-lg font-normal text-white/60 ml-2">
+                ({currentUnit})
+              </span>
+            )}
           </h2>
           {selectedDeviceName && (
             <span className="text-sm text-white/70">
@@ -339,9 +379,9 @@ const Sensors: React.FC = () => {
                 <YAxis 
                   stroke="rgba(255,255,255,0.6)" 
                   tick={{ fill: 'rgba(255,255,255,0.6)', fontSize: 12 }}
-                  tickFormatter={(value) => value.toFixed(2)}
+                  tickFormatter={(value) => `${value.toFixed(2)} ${currentUnit}`}
                   label={{ 
-                    value: getUnit(selectedType), 
+                    value: currentUnit || 'Valor', 
                     angle: -90, 
                     position: 'insideLeft', 
                     fill: 'rgba(255,255,255,0.8)',
@@ -363,7 +403,7 @@ const Sensors: React.FC = () => {
                   formatter={(value: number, name: string, props: any) => {
                     // Usa o valor formatado do payload (que vem do backend)
                     const formattedValue = props.payload?.value || value.toFixed(2);
-                    return [`${formattedValue} ${getUnit(selectedType)}`, selectedType];
+                    return [`${formattedValue} ${currentUnit}`, `${selectedType} (${currentUnit})`];
                   }}
                 />
                 <Legend 
@@ -376,7 +416,7 @@ const Sensors: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="valueForChart"
-                  name={selectedType}
+                  name={currentUnit ? `${selectedType} (${currentUnit})` : selectedType}
                   stroke="#38bdf8"
                   strokeWidth={3}
                   dot={{ fill: '#38bdf8', strokeWidth: 2, r: 4 }}
