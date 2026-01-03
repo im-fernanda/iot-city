@@ -1,166 +1,103 @@
-# IoT City – IoT Device Management System
+# IoT City - Sistema de Gerenciamento de Dispositivos IoT
 
-This project demonstrates a complete IoT device management system with a Spring Boot backend and a React frontend, all containerized with Docker. The system provides a full REST API for monitoring, controlling, and analyzing simulated sensor data distributed across the city of Natal/RN and surrounding areas.
+Sistema completo de gerenciamento de dispositivos IoT com backend Spring Boot e frontend React moderno, containerizado com Docker.
 
-![image](https://github.com/user-attachments/assets/fe012be9-dba8-48f6-b3c6-6130f490e85c)
-![image](https://github.com/user-attachments/assets/bcb3854b-6d3c-43d6-a882-ffd5d940bfe8)
-![image](https://github.com/user-attachments/assets/901ddd57-60e6-4f75-ad62-131a53948762)
-![image](https://github.com/user-attachments/assets/4bec5991-3d41-46fe-b334-9e08d083a2a0)
+## 💡 Conceitos e Aprendizados
 
+Este projeto consolidou meus conhecimentos em arquitetura de software e desenvolvimento full-stack. No backend, utilizei Clean Architecture, organizando o código em camadas bem definidas para garantir separação de responsabilidades e facilitar a manutenção. Apliquei os princípios SOLID, com uso adequado de interfaces, abstrações e inversão de dependências.
 
-## 🐳 Running with Docker
+Trabalhei com Spring Boot 3, explorando IoC e Injeção de Dependências, além de Spring Data JPA para persistência, com repositories customizados e queries otimizadas. Implementei tratamento centralizado de exceções, validações com Bean Validation, controle transacional, documentação de APIs com OpenAPI/Swagger e configuração de CORS.
 
-### Prerequisites
+No frontend, desenvolvi uma interface moderna baseada em componentes reutilizáveis, utilizando React com TypeScript, React Hooks e custom hooks para gerenciamento de estado. A estilização foi feita com TailwindCSS, animações com Framer Motion, seguindo Mobile-First Design, além da integração com APIs REST via Axios.
 
-- **Docker** 20.10 our higher
-- **Docker Compose** 2.0 or higher
+Na infraestrutura, utilizei Docker com multi-stage builds e Docker Compose para orquestração de serviços. Configurei Nginx como proxy reverso e trabalhei com PostgreSQL, aplicando modelagem relacional, migrations versionadas e consultas otimizadas com JPQL e Criteria API.
 
-### 🚀 How to Run
+## 🚀 Como Rodar
 
-1. **Clone the repository:**
-   ```bash
-   git clone https://github.com/im-fernanda/iot-city/
-   cd iot-city
-   ```
+### Opção 1: Docker (Recomendado)
 
-2. **Build and run:**
-   ```bash
-   docker-compose up --build
-   ```
+**Pré-requisitos:** Docker e Docker Compose instalados
 
-3. **Access the application:**
-   - **Frontend**: http://localhost:3000
-   - **Backend API**: http://localhost:8080
-   - **Swagger documentation:**: http://localhost:8080/swagger-ui.html
+```bash
+# 1. Clone o repositório
+git clone https://github.com/im-fernanda/iot-city-backend.git
+cd iot-city-backend
 
-### 📁 Project Structure
+# 2. Execute com Docker Compose
+docker-compose up --build
 
-```
-iot-city-backend/
-├── backend/          # Backend Spring Boot (Java)
-│   ├── src/         # Código fonte Java
-│   ├── pom.xml      # Dependências Maven
-│   └── README.md    # Documentação do backend
-├── frontend/        # Frontend React (TypeScript)
-│   ├── src/         # Código fonte React
-│   ├── package.json # Dependências Node.js
-│   └── README.md    # Documentação do frontend
-├── docker-compose.yml # Configuração Docker
-├── Dockerfile       # Build da aplicação
-└── README.md        # Este arquivo
+# 3. Acesse no navegador
+# Frontend: http://localhost
+# Backend API: http://localhost:8080
+# Swagger UI: http://localhost:8080/swagger-ui.html
 ```
 
-## 🛠️ Technologies Used
+### Opção 2: Execução Local
 
-### Backend
-- **Spring Boot 3.3.12** - Java Framework
-- **Spring Data JPA** - Persistência de dados
-- **Spring Security** - Segurança
-- **PostgreSQL** - Banco de dados
-- **OpenAPI/Swagger** - Documentação da API
+**Pré-requisitos:**
+- Java 21+
+- Node.js 20+
+- PostgreSQL 16+
+- Maven 3.9+
 
-### Frontend
-- **React 18** - Biblioteca JavaScript
-- **TypeScript** - Tipagem estática
-- **React Router** - Navegação
-- **Recharts** - Gráficos
-- **CSS3** - Estilização moderna
+#### Backend
+```bash
+cd backend
 
-### DevOps
-- **Docker** - Containerização
-- **Docker Compose** - Orquestração
-- **Nginx** - Servidor web para frontend
+# Configurar banco de dados no application.properties
+# spring.datasource.url=jdbc:postgresql://localhost:5432/iot_city
+# spring.datasource.username=postgres
+# spring.datasource.password=postgres
+
+# Executar
+mvn spring-boot:run
+
+# API disponível em http://localhost:8080
+```
+
+#### Frontend
+```bash
+cd frontend
+
+# Instalar dependências
+npm install
+
+# Executar em desenvolvimento
+npm start
+
+# Aplicação disponível em http://localhost:3000
+```
 
 ## 📊 Features
 
-### Dashboard
-- IoT device overview
-- Real-time statistics
-- Devices by type
-- ecent devices
+- **Dashboard** - Visão geral com estatísticas e métricas
+- **Gerenciamento de Dispositivos** - CRUD completo com filtros e busca
+- **Visualização de Sensores** - Gráficos históricos de dados
+- **API REST** - Endpoints documentados com Swagger
+- **Interface Moderna** - Design glassmorphism com animações
 
-### Device Management
-- Full device list
-- Filters by type, status, and search
-- Actions: edit, enable/disable, delete
-- Sorting by different criteria
+## 🛠️ Tecnologias
 
-### Sensors and Charts
-- Historical data visualization
-- Filters by sensor type and device
-- Interactive charts with Recharts
+**Backend:** Spring Boot 3, Spring Data JPA, PostgreSQL, OpenAPI/Swagger  
+**Frontend:** React 19, TypeScript, TailwindCSS, Framer Motion, Recharts  
+**DevOps:** Docker, Docker Compose, Nginx
 
-### APIs REST
-- **Devicees**: `/api/devices`
-- **Sensor Data**: `/api/sensor-data`
+## 📝 Tipos de Dispositivos
 
-## 📝Supported Device Types
+SEMÁFORO • QUALIDADE_AR • ILUMINACAO_PUBLICA • NIVEL_AGUA • RUÍDO • METEOROLÓGICO • CÂMERA_SEGURANÇA • ESTACIONAMENTO • LIXEIRA • PAINEL_SOLAR
 
-- **SEMÁFORO** - Smart traffic lights
-- **QUALIDADE_AR** - Air quality sensors
-- **ILUMINACAO_PUBLICA** - Public lighting
-- **NIVEL_AGUA** - Water level sensors
-- **RUÍDO** - Noise sensors
-- **METEOROLÓGICO** - Weather sensors
-- **CÂMERA_SEGURANÇA** - Security cameras
-- **ESTACIONAMENTO** - Parking sensors
-- **LIXEIRA** - Smart waste bin sensors
-- **PAINEL_SOLAR** - Solar panels
-  
-## 🔧 Useful Docker Commands
+## 🔧 Comandos Úteis
 
 ```bash
 # Run in background
 docker-compose up -d
 
-# View logs
-docker-compose logs -f app
+# Ver logs
+docker-compose logs -f
 
-# Stop containers
+# Parar
 docker-compose down
 
-# Rebuild after changes
-docker-compose up --build
-
-# Clean everything
-docker-compose down -v
-docker system prune -a
+# Resetar tudo
+docker-compose down -v && docker-compose up --build
 ```
-
-## 🚨 Troubleshooting
-
-### Port Already in Use
-
-Check processes using the ports:
-```bash
-# 
-netstat -ano | findstr :3000
-netstat -ano | findstr :8080
-
-# Stop processes if needed:
-taskkill /PID <PID> /F
-```
-
-### Docker Issues
-
-```bash
-# Clean containers and images
-docker-compose down -v
-docker system prune -a
-
-# Full rebuild
-docker-compose up --build
-```
-
-### Database
-PostgreSQL is automatically configured with test data. To reset:
-```bash
-docker-compose down -v
-docker-compose up --build
-```
-
-## 📖 Additional Documentation
-
-- **[Backend](backend/README.md)** - Detailed backend documentation
-- **[Big Data](backend/README-BIGDATA-DEVSECOPS.md)** - Advanced features
-
