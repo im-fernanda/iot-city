@@ -1,6 +1,23 @@
 import React, { useState, useEffect, FormEvent } from 'react';
+import { motion } from 'framer-motion';
+import {
+  Search,
+  Filter,
+  Edit2,
+  Trash2,
+  Power,
+  PowerOff,
+  Battery,
+  Signal,
+  MapPin,
+  Clock
+} from 'lucide-react';
 import api from '../services/api';
-import './Devices.css';
+import { Button } from '../components/ui/Button';
+import { Badge } from '../components/ui/Badge';
+import { Input, Select } from '../components/ui/Input';
+import { Modal } from '../components/ui/Modal';
+import { Loading } from '../components/ui/Loading';
 
 interface Device {
   id: number;
@@ -20,11 +37,9 @@ const Devices: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   
-  // Edit Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDevice, setEditingDevice] = useState<Device | null>(null);
 
-  // Filtros
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
@@ -32,6 +47,7 @@ const Devices: React.FC = () => {
 
   useEffect(() => {
     fetchDevices();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
@@ -44,6 +60,7 @@ const Devices: React.FC = () => {
       setLoading(true);
       const response = await api.get('/devices');
       setDevices(response.data);
+      setError(null);
     } catch (err) {
       setError('Erro ao carregar dispositivos');
     } finally {
@@ -83,8 +100,6 @@ const Devices: React.FC = () => {
     setFilteredDevices(filtered);
   };
   
-  // --- CRUD Handlers ---
-
   const handleToggleStatus = async (deviceId: number) => {
     setActionLoading(deviceId);
     try {
@@ -105,22 +120,8 @@ const Devices: React.FC = () => {
     try {
       await api.delete(`/devices/${deviceId}`);
       setDevices(devices.filter(d => d.id !== deviceId));
-      // Feedback de sucesso
-      alert(`Dispositivo "${deviceToDelete?.name}" excluído com sucesso!`);
     } catch (err: any) {
-      // Tratamento de erro mais específico
-      let errorMessage = 'Falha ao excluir o dispositivo.';
-      
-      if (err.response?.data?.message) {
-        errorMessage = err.response.data.message;
-      } else if (err.response?.status === 404) {
-        errorMessage = 'Dispositivo não encontrado.';
-      } else if (err.response?.status === 500) {
-        errorMessage = 'Erro interno do servidor. Tente novamente.';
-      } else if (err.message) {
-        errorMessage = `Erro: ${err.message}`;
-      }
-      
+      const errorMessage = err.response?.data?.message || 'Falha ao excluir o dispositivo.';
       alert(`❌ ${errorMessage}`);
     } finally {
       setActionLoading(null);
@@ -152,9 +153,7 @@ const Devices: React.FC = () => {
     }
   };
 
-  // --- UI Helpers ---
-
-  const getDeviceTypeIcon = (type: string) => ({
+  const getDeviceTypeEmoji = (type: string) => ({
     'SEMÁFORO': '🚦',
     'QUALIDADE_AR': '🌬️',
     'ILUMINACAO_PUBLICA': '💡',
@@ -167,162 +166,273 @@ const Devices: React.FC = () => {
     'PAINEL_SOLAR': '☀️'
   }[type] || '📱');
 
-  const getStatusStyle = (active: boolean) => ({
-    backgroundColor: active ? '#4CAF50' : '#f44336',
-  });
-
-  const getBatteryStyle = (level?: number) => {
-    if (!level) return { width: '0%', backgroundColor: '#666' };
-    const color = level > 60 ? '#4CAF50' : level > 20 ? '#FF9800' : '#f44336';
-    return { width: `${level}%`, backgroundColor: color };
-  };
-
   const deviceTypes = Array.from(new Set(devices.map(d => d.type)));
   
-  if (loading) return <div className="devices-page"><div className="loading"><div className="spinner"></div></div></div>;
-  if (error) return <div className="devices-page"><div className="error"><h2>{error}</h2><button onClick={fetchDevices}>Tentar Novamente</button></div></div>;
+  if (loading && devices.length === 0) {
+    return <Loading message="Carregando dispositivos..." />;
+  }
+
+  if (error && devices.length === 0) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card p-8 text-center max-w-md"
+        >
+          <h2 className="text-2xl font-bold text-white mb-2">Erro</h2>
+          <p className="text-white/70 mb-6">{error}</p>
+          <Button onClick={fetchDevices} variant="primary">Tentar Novamente</Button>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
-    <div className="devices-page">
-      <header className="devices-header">
-        <h1>📱 Dispositivos IoT</h1>
-        <p>Gerencie e monitore todos os dispositivos do sistema</p>
-      </header>
+    <div className="space-y-6">
+      {/* Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 gradient-text">
+          Dispositivos IoT
+        </h1>
+        <p className="text-white/70 text-lg">
+          Gerencie e monitore todos os dispositivos do sistema
+        </p>
+      </motion.header>
 
-      {/* Filtros */}
-      <div className="filters-section">
-        <div className="filters-grid">
-          <div className="filter-group">
-            <label>🔍 Buscar</label>
-            <input type="text" placeholder="Nome ou localização..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="filter-input"/>
-          </div>
-          <div className="filter-group">
-            <label>📋 Tipo</label>
-            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)} className="filter-select">
-              <option value="">Todos os tipos</option>
-              {deviceTypes.map(type => <option key={type} value={type}>{getDeviceTypeIcon(type)} {type.replace('_', ' ')}</option>)}
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>🔄 Status</label>
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="filter-select">
-              <option value="">Todos</option>
-              <option value="active">🟢 Ativos</option>
-              <option value="inactive">🔴 Inativos</option>
-            </select>
-          </div>
-          <div className="filter-group">
-            <label>📊 Ordenar por</label>
-            <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="filter-select">
-              <option value="name">Nome</option>
-              <option value="type">Tipo</option>
-              <option value="location">Localização</option>
-              <option value="battery">Bateria</option>
-              <option value="lastSeen">Última atividade</option>
-            </select>
-          </div>
+      {/* Filters */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-card p-6"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <Input
+            placeholder="Buscar por nome ou localização..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            icon={<Search className="w-4 h-4" />}
+          />
+          <Select
+            value={typeFilter}
+            onChange={(e) => setTypeFilter(e.target.value)}
+            options={[
+              { value: '', label: 'Todos os tipos' },
+              ...deviceTypes.map(type => ({ value: type, label: type.replace(/_/g, ' ') }))
+            ]}
+          />
+          <Select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            options={[
+              { value: '', label: 'Todos os status' },
+              { value: 'active', label: 'Ativos' },
+              { value: 'inactive', label: 'Inativos' }
+            ]}
+          />
+          <Select
+            value={sortBy}
+            onChange={(e) => setSortBy(e.target.value)}
+            options={[
+              { value: 'name', label: 'Nome' },
+              { value: 'type', label: 'Tipo' },
+              { value: 'location', label: 'Localização' },
+              { value: 'battery', label: 'Bateria' },
+              { value: 'lastSeen', label: 'Última atividade' }
+            ]}
+          />
         </div>
-        <div className="filters-summary">
-          <span>📊 {filteredDevices.length} de {devices.length} dispositivos</span>
+        <div className="flex items-center justify-between text-sm">
+          <span className="text-white/70">
+            {filteredDevices.length} de {devices.length} dispositivos
+          </span>
           {(searchTerm || typeFilter || statusFilter) && (
-            <button onClick={() => { setSearchTerm(''); setTypeFilter(''); setStatusFilter(''); }} className="clear-filters">
-              🗑️ Limpar filtros
-            </button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => { setSearchTerm(''); setTypeFilter(''); setStatusFilter(''); }}
+            >
+              Limpar filtros
+            </Button>
           )}
         </div>
-      </div>
+      </motion.div>
 
-      {/* Grid de Dispositivos */}
-      <div className="devices-grid">
+      {/* Devices Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
         {filteredDevices.length === 0 ? (
-          <div className="no-devices"><h3>Nenhum dispositivo encontrado</h3><p>Tente ajustar os filtros de busca</p></div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="col-span-full glass-card p-12 text-center"
+          >
+            <Filter className="w-16 h-16 text-white/30 mx-auto mb-4" />
+            <h3 className="text-xl font-bold text-white mb-2">Nenhum dispositivo encontrado</h3>
+            <p className="text-white/60">Tente ajustar os filtros de busca</p>
+          </motion.div>
         ) : (
-          filteredDevices.map(device => (
-            <div key={device.id} className="device-card">
-              <div className="device-header">
-                <span className="device-icon">{getDeviceTypeIcon(device.type)}</span>
-                <h3>{device.name}</h3>
-                <span className="status-indicator" style={getStatusStyle(device.active)}>
-                  {device.active ? 'Online' : 'Offline'}
-                </span>
-              </div>
-              <div className="device-info">
-                <p><strong>Tipo:</strong> {device.type.replace('_', ' ')}</p>
-                <p><strong>Localização:</strong> {device.location}</p>
-                <p><strong>Última atividade:</strong> {new Date(device.lastSeen).toLocaleString()}</p>
-              </div>
-              <div className="device-metrics">
-                {device.batteryLevel != null && (
-                  <div className="metric">
-                    <span>🔋 Bateria</span>
-                    <div className="battery-bar"><div className="battery-fill" style={getBatteryStyle(device.batteryLevel)}></div></div>
-                    <span className="battery-text">{device.batteryLevel}%</span>
+          filteredDevices.map((device, index) => (
+              <motion.div
+                key={device.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ delay: index * 0.03 }}
+                className="glass-card-hover p-6"
+              >
+                {/* Device Header */}
+                <div className="flex items-start justify-between mb-4">
+                  <div className="flex items-center gap-3 flex-1 min-w-0">
+                    <div className="text-4xl flex-shrink-0">{getDeviceTypeEmoji(device.type)}</div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="text-lg font-bold text-white truncate">{device.name}</h3>
+                      <p className="text-sm text-white/60">{device.type.replace(/_/g, ' ')}</p>
+                    </div>
                   </div>
-                )}
-                {device.signalStrength != null && (
-                  <div className="metric">
-                    <span>📶 Sinal</span>
-                    <div className="signal-bar"><div className="signal-fill" style={{ width: `${device.signalStrength}%` }}></div></div>
-                    <span className="signal-text">{device.signalStrength}%</span>
+                  <Badge variant={device.active ? 'success' : 'danger'}>
+                    {device.active ? 'Online' : 'Offline'}
+                  </Badge>
+                </div>
+
+                {/* Device Info */}
+                <div className="space-y-3 mb-4">
+                  <div className="flex items-center gap-2 text-sm text-white/70">
+                    <MapPin className="w-4 h-4 flex-shrink-0" />
+                    <span className="truncate">{device.location}</span>
                   </div>
-                )}
-              </div>
-              <div className="device-actions">
-                <button className="action-btn edit" onClick={() => handleOpenEditModal(device)} disabled={!!actionLoading}>
-                  ✏️ Editar
-                </button>
-                <button className="action-btn toggle" onClick={() => handleToggleStatus(device.id)} disabled={!!actionLoading}>
-                  {actionLoading === device.id ? '...' : (device.active ? '⏸️ Desativar' : '▶️ Ativar')}
-                </button>
-                <button className="action-btn delete" onClick={() => handleDelete(device.id)} disabled={!!actionLoading}>
-                  {actionLoading === device.id ? '...' : '🗑️ Excluir'}
-                </button>
-              </div>
-            </div>
-          ))
+                  <div className="flex items-center gap-2 text-sm text-white/70">
+                    <Clock className="w-4 h-4 flex-shrink-0" />
+                    <span>{new Date(device.lastSeen).toLocaleString('pt-BR')}</span>
+                  </div>
+                </div>
+
+                {/* Metrics */}
+                <div className="space-y-3 mb-4">
+                  {device.batteryLevel != null && (
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-white/70 mb-1">
+                        <span className="flex items-center gap-1">
+                          <Battery className="w-3 h-3" />
+                          Bateria
+                        </span>
+                        <span className="font-semibold">{device.batteryLevel}%</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${device.batteryLevel}%` }}
+                          transition={{ duration: 1, delay: index * 0.05 }}
+                          className={`h-full ${
+                            device.batteryLevel > 60 ? 'bg-green-400' :
+                            device.batteryLevel > 20 ? 'bg-yellow-400' : 'bg-red-400'
+                          }`}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  {device.signalStrength != null && (
+                    <div>
+                      <div className="flex items-center justify-between text-xs text-white/70 mb-1">
+                        <span className="flex items-center gap-1">
+                          <Signal className="w-3 h-3" />
+                          Sinal
+                        </span>
+                        <span className="font-semibold">{device.signalStrength}%</span>
+                      </div>
+                      <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                        <motion.div
+                          initial={{ width: 0 }}
+                          animate={{ width: `${device.signalStrength}%` }}
+                          transition={{ duration: 1, delay: index * 0.05 + 0.2 }}
+                          className="h-full bg-primary-400"
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                {/* Actions */}
+                <div className="flex gap-2">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="flex-1"
+                    onClick={() => handleOpenEditModal(device)}
+                    disabled={!!actionLoading}
+                    icon={<Edit2 className="w-4 h-4" />}
+                  >
+                    Editar
+                  </Button>
+                  <Button
+                    variant={device.active ? 'ghost' : 'success'}
+                    size="sm"
+                    onClick={() => handleToggleStatus(device.id)}
+                    loading={actionLoading === device.id}
+                    disabled={!!actionLoading && actionLoading !== device.id}
+                    icon={device.active ? <PowerOff className="w-4 h-4" /> : <Power className="w-4 h-4" />}
+                  >
+                    {device.active ? 'Desativar' : 'Ativar'}
+                  </Button>
+                  <Button
+                    variant="danger"
+                    size="sm"
+                    onClick={() => handleDelete(device.id)}
+                    loading={actionLoading === device.id}
+                    disabled={!!actionLoading && actionLoading !== device.id}
+                    icon={<Trash2 className="w-4 h-4" />}
+                  >
+                  </Button>
+                </div>
+              </motion.div>
+            ))
         )}
       </div>
 
-      {/* Modal de Edição */}
-      {isModalOpen && editingDevice && (
-        <div className="modal-overlay">
-          <div className="modal-content">
-            <form onSubmit={handleUpdateDevice}>
-              <h2>Editar Dispositivo</h2>
-              <div className="form-group">
-                <label htmlFor="deviceName">Nome</label>
-                <input
-                  id="deviceName"
-                  type="text"
-                  value={editingDevice.name}
-                  onChange={(e) => setEditingDevice({ ...editingDevice, name: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label htmlFor="deviceLocation">Localização</label>
-                <input
-                  id="deviceLocation"
-                  type="text"
-                  value={editingDevice.location}
-                  onChange={(e) => setEditingDevice({ ...editingDevice, location: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setIsModalOpen(false)} disabled={!!actionLoading}>
-                  Cancelar
-                </button>
-                <button type="submit" className="btn-save" disabled={!!actionLoading}>
-                  {actionLoading === editingDevice?.id ? 'Salvando...' : 'Salvar Alterações'}
-                </button>
-              </div>
-            </form>
+      {/* Edit Modal */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Editar Dispositivo"
+      >
+        <form onSubmit={handleUpdateDevice} className="space-y-4">
+          <Input
+            label="Nome do Dispositivo"
+            value={editingDevice?.name || ''}
+            onChange={(e) => setEditingDevice(editingDevice ? { ...editingDevice, name: e.target.value } : null)}
+            required
+          />
+          <Input
+            label="Localização"
+            value={editingDevice?.location || ''}
+            onChange={(e) => setEditingDevice(editingDevice ? { ...editingDevice, location: e.target.value } : null)}
+            required
+          />
+          <div className="flex gap-3 justify-end pt-4">
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => setIsModalOpen(false)}
+              disabled={!!actionLoading}
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              loading={!!actionLoading}
+            >
+              Salvar Alterações
+            </Button>
           </div>
-        </div>
-      )}
+        </form>
+      </Modal>
     </div>
   );
 };
 
-export default Devices; 
+export default Devices;

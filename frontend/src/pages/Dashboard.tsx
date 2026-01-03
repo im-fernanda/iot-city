@@ -1,5 +1,19 @@
 import React, { useState, useEffect } from 'react';
-import './Dashboard.css';
+import { motion } from 'framer-motion';
+import { 
+  Cpu, 
+  Activity, 
+  AlertTriangle, 
+  Battery, 
+  TrendingUp,
+  MapPin,
+  Clock,
+  Zap
+} from 'lucide-react';
+import { StatCard } from '../components/ui/Card';
+import { Loading } from '../components/ui/Loading';
+import { Badge } from '../components/ui/Badge';
+import { Button } from '../components/ui/Button';
 
 interface Device {
   id: number;
@@ -19,6 +33,8 @@ const Dashboard: React.FC = () => {
 
   useEffect(() => {
     fetchDevices();
+    const interval = setInterval(fetchDevices, 30000); // Refresh every 30s
+    return () => clearInterval(interval);
   }, []);
 
   const fetchDevices = async () => {
@@ -30,6 +46,7 @@ const Dashboard: React.FC = () => {
       }
       const data = await response.json();
       setDevices(data);
+      setError(null);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro desconhecido');
     } finally {
@@ -37,7 +54,7 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  const getDeviceTypeIcon = (type: string) => {
+  const getDeviceTypeEmoji = (type: string) => {
     const icons: { [key: string]: string } = {
       'SEMÁFORO': '🚦',
       'QUALIDADE_AR': '🌬️',
@@ -53,15 +70,12 @@ const Dashboard: React.FC = () => {
     return icons[type] || '📱';
   };
 
-  const getStatusColor = (active: boolean) => {
-    return active ? '#4CAF50' : '#f44336';
-  };
-
   // Estatísticas
   const totalDevices = devices.length;
   const activeDevices = devices.filter(d => d.active).length;
   const offlineDevices = devices.filter(d => !d.active).length;
   const lowBatteryDevices = devices.filter(d => d.batteryLevel && d.batteryLevel < 20).length;
+  const activePercentage = totalDevices > 0 ? ((activeDevices / totalDevices) * 100).toFixed(1) : 0;
 
   // Dispositivos por tipo
   const devicesByType = devices.reduce((acc, device) => {
@@ -69,113 +83,200 @@ const Dashboard: React.FC = () => {
     return acc;
   }, {} as { [key: string]: number });
 
-  if (loading) {
-    return (
-      <div className="dashboard">
-        <div className="loading">
-          <h2>Carregando dashboard...</h2>
-          <div className="spinner"></div>
-        </div>
-      </div>
-    );
+  if (loading && devices.length === 0) {
+    return <Loading message="Carregando dashboard..." />;
   }
 
-  if (error) {
+  if (error && devices.length === 0) {
     return (
-      <div className="dashboard">
-        <div className="error">
-          <h2>Erro ao carregar dados</h2>
-          <p>{error}</p>
-          <button onClick={fetchDevices}>Tentar novamente</button>
-        </div>
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="glass-card p-8 text-center max-w-md"
+        >
+          <AlertTriangle className="w-16 h-16 text-red-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-bold text-white mb-2">Erro ao carregar dados</h2>
+          <p className="text-white/70 mb-6">{error}</p>
+          <Button onClick={fetchDevices} variant="primary">
+            Tentar novamente
+          </Button>
+        </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard">
-      <header className="dashboard-header">
-        <h1>📊 Dashboard IoT City</h1>
-        <p>Visão geral do sistema de dispositivos IoT</p>
-      </header>
+    <div className="space-y-8">
+      {/* Header */}
+      <motion.header
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-8"
+      >
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 gradient-text">
+          Dashboard IoT City
+        </h1>
+        <p className="text-white/70 text-lg">
+          Visão geral do sistema de dispositivos IoT em tempo real
+        </p>
+      </motion.header>
 
-      {/* Cards de Estatísticas */}
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">📱</div>
-          <div className="stat-content">
-            <h3>Total de Dispositivos</h3>
-            <p className="stat-number">{totalDevices}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🟢</div>
-          <div className="stat-content">
-            <h3>Dispositivos Ativos</h3>
-            <p className="stat-number">{activeDevices}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🔴</div>
-          <div className="stat-content">
-            <h3>Dispositivos Offline</h3>
-            <p className="stat-number">{offlineDevices}</p>
-          </div>
-        </div>
-
-        <div className="stat-card">
-          <div className="stat-icon">🔋</div>
-          <div className="stat-content">
-            <h3>Bateria Baixa</h3>
-            <p className="stat-number">{lowBatteryDevices}</p>
-          </div>
-        </div>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <StatCard
+          icon={<Cpu className="w-8 h-8 text-primary-400" />}
+          title="Total de Dispositivos"
+          value={totalDevices}
+        />
+        <StatCard
+          icon={<Activity className="w-8 h-8 text-green-400" />}
+          title="Dispositivos Ativos"
+          value={activeDevices}
+          trend={{ value: Number(activePercentage), isPositive: activeDevices > offlineDevices }}
+        />
+        <StatCard
+          icon={<AlertTriangle className="w-8 h-8 text-red-400" />}
+          title="Dispositivos Offline"
+          value={offlineDevices}
+        />
+        <StatCard
+          icon={<Battery className="w-8 h-8 text-yellow-400" />}
+          title="Bateria Baixa"
+          value={lowBatteryDevices}
+        />
       </div>
 
       {/* Dispositivos por Tipo */}
-      <div className="dashboard-section">
-        <h2>Dispositivos por Tipo</h2>
-        <div className="type-stats">
-          {Object.entries(devicesByType).map(([type, count]) => (
-            <div key={type} className="type-card">
-              <span className="type-icon">{getDeviceTypeIcon(type)}</span>
-              <div className="type-info">
-                <h4>{type.replace('_', ' ')}</h4>
-                <p>{count} dispositivos</p>
-              </div>
-            </div>
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="glass-card p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-primary-400" />
+            Dispositivos por Tipo
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+          {Object.entries(devicesByType).map(([type, count], index) => (
+            <motion.div
+              key={type}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.05 }}
+              whileHover={{ scale: 1.05 }}
+              className="glass-card-hover p-4 text-center"
+            >
+              <div className="text-4xl mb-2">{getDeviceTypeEmoji(type)}</div>
+              <h4 className="text-white font-semibold mb-1 text-sm">
+                {type.replace(/_/g, ' ')}
+              </h4>
+              <p className="text-primary-400 font-bold text-xl">{count}</p>
+              <p className="text-white/60 text-xs">dispositivos</p>
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.section>
 
       {/* Dispositivos Recentes */}
-      <div className="dashboard-section">
-        <h2>Dispositivos Recentes</h2>
-        <div className="recent-devices">
-          {devices.slice(0, 6).map(device => (
-            <div key={device.id} className="recent-device-card">
-              <div className="device-header">
-                <span className="device-icon">{getDeviceTypeIcon(device.type)}</span>
-                <h4>{device.name}</h4>
-                <span 
-                  className="status-indicator" 
-                  style={{ backgroundColor: getStatusColor(device.active) }}
-                >
+      <motion.section
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+        className="glass-card p-6"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-white flex items-center gap-2">
+            <Clock className="w-6 h-6 text-primary-400" />
+            Dispositivos Recentes
+          </h2>
+          <Button 
+            variant="ghost" 
+            size="sm"
+            onClick={fetchDevices}
+            loading={loading}
+          >
+            Atualizar
+          </Button>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {devices.slice(0, 6).map((device, index) => (
+            <motion.div
+              key={device.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              whileHover={{ y: -5 }}
+              className="glass-card-hover p-5"
+            >
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-center gap-3">
+                  <div className="text-3xl">{getDeviceTypeEmoji(device.type)}</div>
+                  <div>
+                    <h4 className="text-white font-semibold">{device.name}</h4>
+                    <p className="text-white/60 text-sm flex items-center gap-1">
+                      <MapPin className="w-3 h-3" />
+                      {device.location}
+                    </p>
+                  </div>
+                </div>
+                <Badge variant={device.active ? 'success' : 'danger'}>
                   {device.active ? 'Online' : 'Offline'}
-                </span>
+                </Badge>
               </div>
-              <p className="device-location">{device.location}</p>
-              {device.batteryLevel && (
-                <div className="battery-info">
-                  <span>🔋 {device.batteryLevel}%</span>
+              
+              {device.batteryLevel != null && (
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-xs text-white/70 mb-1">
+                    <span className="flex items-center gap-1">
+                      <Battery className="w-3 h-3" />
+                      Bateria
+                    </span>
+                    <span>{device.batteryLevel}%</span>
+                  </div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${device.batteryLevel}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 }}
+                      className={`h-full rounded-full ${
+                        device.batteryLevel > 60
+                          ? 'bg-green-400'
+                          : device.batteryLevel > 20
+                          ? 'bg-yellow-400'
+                          : 'bg-red-400'
+                      }`}
+                    />
+                  </div>
                 </div>
               )}
-            </div>
+
+              {device.signalStrength != null && (
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-xs text-white/70 mb-1">
+                    <span className="flex items-center gap-1">
+                      <Zap className="w-3 h-3" />
+                      Sinal
+                    </span>
+                    <span>{device.signalStrength}%</span>
+                  </div>
+                  <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: `${device.signalStrength}%` }}
+                      transition={{ duration: 1, delay: index * 0.1 + 0.2 }}
+                      className="h-full rounded-full bg-primary-400"
+                    />
+                  </div>
+                </div>
+              )}
+            </motion.div>
           ))}
         </div>
-      </div>
+      </motion.section>
     </div>
   );
 };
