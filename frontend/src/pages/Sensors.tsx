@@ -80,7 +80,7 @@ const Sensors: React.FC = () => {
       }
     };
     fetchDevicesForType();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedType, allDevices]);
 
   useEffect(() => {
@@ -89,7 +89,7 @@ const Sensors: React.FC = () => {
     } else {
       setSensorData([]);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedDevice, selectedType]);
 
   // Tipos de sensores válidos no backend: TEMPERATURA, UMIDADE, QUALIDADE_AR, RUÍDO, LUZ, MOVIMENTO
@@ -104,7 +104,7 @@ const Sensors: React.FC = () => {
       case 'RUÍDO':
         return <Activity className="w-6 h-6 text-red-400" />;
       case 'LUZ':
-      case 'INTENSIDADE_LUZ': // Pode aparecer em dados antigos do data.sql
+      case 'INTENSIDADE_LUZ':
         return <Activity className="w-6 h-6 text-yellow-400" />;
       case 'MOVIMENTO':
         return <Activity className="w-6 h-6 text-primary-400" />;
@@ -113,10 +113,8 @@ const Sensors: React.FC = () => {
     }
   };
 
-  // Tipos de sensores válidos no backend: TEMPERATURA, UMIDADE, QUALIDADE_AR, RUÍDO, LUZ, MOVIMENTO
   // Unidades válidas: CELSIUS, FAHRENHEIT, PERCENTAGE, PPM, DB, LUX, BOOLEAN
   const getUnit = (sensorType: string, unitFromBackend?: string): string => {
-    // Se o backend forneceu uma unidade, use-a (mas formate se necessário)
     if (unitFromBackend) {
       const unitMap: { [key: string]: string } = {
         'CELSIUS': '°C',
@@ -142,7 +140,6 @@ const Sensors: React.FC = () => {
       case 'RUÍDO':
         return 'dB';
       case 'LUZ':
-      case 'INTENSIDADE_LUZ': // Pode aparecer em dados antigos do data.sql
         return 'lux';
       case 'MOVIMENTO':
         return '';

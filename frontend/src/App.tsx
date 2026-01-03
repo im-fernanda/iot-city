@@ -8,7 +8,7 @@ import Sensors from './pages/Sensors';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-dark-900 text-white">
+      <div className="min-h-screen bg-dark-700 text-white">
         {/* Content */}
         <div className="relative z-10">
           <Navbar />
