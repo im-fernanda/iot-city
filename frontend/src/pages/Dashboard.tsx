@@ -114,7 +114,7 @@ const Dashboard: React.FC = () => {
         animate={{ opacity: 1, y: 0 }}
         className="text-center mb-8"
       >
-        <h1 className="text-4xl md:text-5xl font-bold mb-3 text-white">
+        <h1 className="text-4xl md:text-5xl font-bold mb-3 gradient-text">
           Dashboard IoT City
         </h1>
         <p className="text-white/70 text-lg">
